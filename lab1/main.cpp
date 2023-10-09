@@ -156,24 +156,63 @@ vector<double> jacobi_omp (vector<vector<double>> A, vector<double> F, const dou
     cout << "TIME parallel: " << exec_time << endl;
     return out;
 }
+std::vector<std::string> split(std::string s, std::string delimiter) {
+    size_t pos_start = 0, pos_end, delim_len = delimiter.length();
+    std::string token;
+    std::vector<std::string> res;
 
+    while ((pos_end = s.find(delimiter, pos_start)) != std::string::npos) {
+        token = s.substr (pos_start, pos_end - pos_start);
+        pos_start = pos_end + delim_len;
+        res.push_back (token);
+    }
+
+    res.push_back (s.substr (pos_start));
+    return res;
+}
 int main() {
     std::cout << "Hello, World!" << std::endl;
     //vector<vector<double>> a = {{9,0,-12},{0,51,12},{-12,5,24}};
     //vector<vector<double>> a = {{9.2f,2.5f,-3.7f},{0.9f,9.0f,0.2f},{4.5f,-1.6f,-10.3f}};
     //vector<double> b = {-17.5f,4.4f,-22.1f};
-    int i = 2, maxval;
-    cout << "Insert size of square matrix: ";
-    cin >> i;
-    cout << "Insert max values: ";
-    cin >> maxval;
-    vector<vector<double>> a = matrix_genA(i,maxval);
-    vector<double> b = matrix_genB(i,maxval);
-    bool check = normal(a);
-    while(!normal(a)) {
-        for(int y = 0 ; y < i; y++) {
-            for(int x = 0 ; x < i; x++) {
-                if(x == i-1) {
+
+    cout << "Insert random matrix (y/n): ";
+    std::string yes;
+    if (!getline(cin,yes,'\n')) return true;
+    vector<vector<double>> a;
+    vector<double> b;
+    if (yes == "y") {
+        int i = 2, maxval;
+        cout << "Insert size of square matrix: ";
+        cin >> i;
+        cout << "Insert max values: ";
+        cin >> maxval;
+        a = matrix_genA(i, maxval);
+        b = matrix_genB(i, maxval);
+        bool check = normal(a);
+        while (!normal(a)) {
+            for (int y = 0; y < i; y++) {
+                for (int x = 0; x < i; x++) {
+                    if (x == i - 1) {
+                        cout << a[y][x] << " ";
+                        cout << b[y] << " ";
+                    } else {
+                        cout << a[y][x] << " ";
+                    }
+                }
+                cout << endl;
+            }
+            cout << "Recheck generate" << endl;
+
+            a = matrix_genA(i, maxval);
+            b = matrix_genB(i, maxval);
+            std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+        }
+
+        cout << "Generated " << i << " size its " << (normal(a) ? true : false) << endl;
+        for(int y = 0 ; y < b.size(); y++) {
+            for(int x = 0 ; x < b.size(); x++) {
+                if(x == b.size()-1) {
                     cout << a[y][x] << " ";
                     cout << b[y] << " ";
                 }
@@ -183,27 +222,35 @@ int main() {
             }
             cout << endl;
         }
-        cout << "Recheck" << endl;
-        a = matrix_genA(i,maxval);
-        b = matrix_genB(i,maxval);
-        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+    }
+    else {
+        int i = 2;
+        cout << "Insert size of square matrix: ";
+        cin >> i;
+        a = vector<vector<double>>(i, vector<double>(i, 0));
+        b = vector<double>(i, 0);
+        for(int y =0; y < i; y++ ) {
+            std::string line;
+            getline(cin>>std::ws,line);
+            vector<std::string> d = split(line, " ");
+            for(int x = 0; x <= i; x++) { // т.к. учитываем, что в матрице есть вектор b
+                if(x == i) {
+                    b[y] = std::stoi(d[x]);
+                }
+                else {
+                    a[y][x] = (double)std::stoi(d[x]);
+                }
+            }
+            line.clear();
+        }
+        bool norm = normal(a);
+        cout << "Inserted " << b.size() << " size its " << (norm ? "true" : "false") << endl;
     }
 
-    cout << "Generated " << i << " size its " << (normal(a) ? true : false) << endl;
-    for(int y = 0 ; y < i; y++) {
-        for(int x = 0 ; x < i; x++) {
-            if(x == i-1) {
-                cout << a[y][x] << " ";
-                cout << b[y] << " ";
-            }
-            else {
-                cout << a[y][x] << " ";
-            }
-        }
-        cout << endl;
-    }
     vector<double> out = jacobi(a, b);
     vector<double> outomp = jacobi_omp(a, b);
+    a.clear();
+    b.clear();
     std::cout << "ANSWER:\nlinel" << std::endl;
     for(auto d : out) {
         cout << d << endl;
@@ -212,19 +259,5 @@ int main() {
     for(auto d : outomp) {
         cout << d << endl;
     }
-    /*for(int i = 2; i <= 300; i++) {
-        vector<vector<double>> a = matrix_genA(i);
-        vector<double> b = matrix_genB(i);
-        cout << "Generated " << i << endl;
-        vector<double> out = jacobi(a, b);
-        vector<double> outomp = jacobi_omp(a, b);
-    }*/
-    /*for(auto d : out) {
-        cout << d << endl;
-    }
-    std::cout << "parallel" << std::endl;
-    for(auto d : outomp) {
-        cout << d << endl;
-    }*/
     return 0;
 }

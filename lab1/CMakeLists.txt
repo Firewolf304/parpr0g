@@ -10,3 +10,4 @@ add_executable(lab1 main.cpp)
 
 find_package(Threads REQUIRED)
 add_library(OpenMP::OpenMP_CXX IMPORTED INTERFACE)
+message(STATUS "flags - ${CMAKE_CXX_FLAGS}")
