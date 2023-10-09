@@ -1,0 +1,3 @@
+/home/firewolf/CLionProjects/parprog/lab1_orig/cmake-build-debug/CMakeFiles/lab1_orig.dir
+/home/firewolf/CLionProjects/parprog/lab1_orig/cmake-build-debug/CMakeFiles/edit_cache.dir
+/home/firewolf/CLionProjects/parprog/lab1_orig/cmake-build-debug/CMakeFiles/rebuild_cache.dir
