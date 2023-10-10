@@ -209,7 +209,7 @@ int main() {
             b = matrix_genB(i, maxval);
             std::this_thread::sleep_for(std::chrono::milliseconds(1000));
         }*/
-        std::ofstream matrix("matrix.txt", std::ios_base::app | std::ios_base::out);
+        std::ofstream matrix("matrix.txt", std::ios_base::trunc);
         cout << "Generated " << i << " size" << endl;
         for(int y = 0 ; y < b.size(); y++) {
             for(int x = 0 ; x < b.size(); x++) {
@@ -259,12 +259,16 @@ int main() {
     vector<double> outomp = jacobi_omp(a, b, eps);
     a.clear();
     b.clear();
-    std::ofstream answer("answer.txt", std::ios_base::app | std::ios_base::out);
+    std::ofstream answerlinel("answerlinel.txt", std::ios_base::trunc);
+    std::ofstream answerparallel("answerparallel.txt", std::ios_base::trunc);
     //std::cout << "ANSWER:\nlinel" << std::endl;
-    int count = out.size();
-    for(auto d : outomp) {
-        count--;
-        answer << d << "\n";
+    int count=outomp.size();
+    for(int i = 0; i < outomp.size(); i++) {
+        answerlinel << out[i] << "\n";
+        answerparallel << outomp[i] << "\n";
+        if(out[i] == outomp[i] ) {
+            count--;
+        }
     }
     cout << "Matching answer: " << ((count == 0) ? "true" : "false" ) << endl;
     return 0;
