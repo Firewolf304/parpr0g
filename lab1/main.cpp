@@ -84,7 +84,7 @@ bool normal(vector<vector<double>> mass) {
     }
     return true;
 }
-vector<double> jacobi (vector<vector<double>> A, vector<double> F, const double& eps = 0.001)
+vector<double> jacobi (vector<vector<double>> A, vector<double> F, double eps = 0.001f)
 /*
  * A - переменные слау
  * F - переменные после равно
@@ -118,7 +118,7 @@ vector<double> jacobi (vector<vector<double>> A, vector<double> F, const double&
     cout << "TIME linel: " << exec_time << endl;
     return out;
 }
-vector<double> jacobi_omp (vector<vector<double>> A, vector<double> F, const double& eps = 0.001)
+vector<double> jacobi_omp (vector<vector<double>> A, vector<double> F, double eps = 0.001f)
 /*
  * A - переменные слау
  * F - переменные после равно
@@ -189,7 +189,7 @@ int main() {
         cin >> maxval;
         a = matrix_genA(i, maxval);
         b = matrix_genB(i, maxval);
-        bool check = normal(a);
+        /*bool check = normal(a);
         while (!normal(a)) {
             for (int y = 0; y < i; y++) {
                 for (int x = 0; x < i; x++) {
@@ -207,9 +207,9 @@ int main() {
             a = matrix_genA(i, maxval);
             b = matrix_genB(i, maxval);
             std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-        }
+        }*/
 
-        cout << "Generated " << i << " size its " << (normal(a) ? true : false) << endl;
+        cout << "Generated " << i << " size" << endl;
         for(int y = 0 ; y < b.size(); y++) {
             for(int x = 0 ; x < b.size(); x++) {
                 if(x == b.size()-1) {
@@ -245,10 +245,16 @@ int main() {
         }
         bool norm = normal(a);
         cout << "Inserted " << b.size() << " size its " << (norm ? "true" : "false") << endl;
+        if(!norm) {
+            perror("Infinite answer");
+            exit(-1);
+        }
     }
-
-    vector<double> out = jacobi(a, b);
-    vector<double> outomp = jacobi_omp(a, b);
+    double eps;
+    cout << "Insert eps: ";
+    cin >> eps;
+    vector<double> out = jacobi(a, b, eps);
+    vector<double> outomp = jacobi_omp(a, b, eps);
     a.clear();
     b.clear();
     std::cout << "ANSWER:\nlinel" << std::endl;
