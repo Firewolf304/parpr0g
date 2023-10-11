@@ -271,5 +271,7 @@ int main() {
         }
     }
     cout << "Matching answer: " << ((count == 0) ? "true" : "false" ) << endl;
+    answerlinel.close();
+    answerparallel.close();
     return 0;
 }
