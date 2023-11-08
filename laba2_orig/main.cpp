@@ -197,12 +197,13 @@ private:
 int main() {
     cout << cout.setf(std::ios::fixed) << cout.precision(3) << endl;
     std::cout << "Hello, World!" << std::endl;
-    int x = 10, y = 4, z = 10;
+    int x = 12, y = 4, z = 11;
 
-    make_cube cube(x,y,z, 1.0f);
+    make_cube cube(x,y,z, 3.0f);
     cube.alpha= 0.05351f; //0.05351f;
     cube.computeMat();
-    cube.iteration(0.00001f, 1);
+    cube.iteration(0.01f, 10);
+    cube.show();
     vector<vector<vector<double>>> answer = cube();
 
     return 0;

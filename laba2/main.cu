@@ -15,9 +15,6 @@ using std::cout;
 using std::cin;
 using std::endl;
 using std::vector;
-class make_cube;
-__global__ void MakeMat_byKernel(make_cube * obj , thrust::device_ptr<float> data);
-__global__ void collect_byKernel(make_cube * obj , thrust::device_ptr<float> data, float* output, int x, int y, int z);
 struct dataId {
     struct th {
         unsigned int x;
@@ -70,7 +67,10 @@ int main() {
               T1 находится на стороне YZ при Z=0
               T2 находится на обратной стороне YZ при Z=len(Z)-1
      */
-
+namespace matrixer {
+    class make_cube;
+    __global__ void MakeMat_byKernel(make_cube * obj , thrust::device_ptr<float> data);
+    __global__ void collect_byKernel(make_cube * obj , thrust::device_ptr<float> data, float* output, int x, int y, int z);
     class cpu {
         typedef vector<vector<vector<double>>> matrix_type;
     public:
@@ -163,7 +163,9 @@ int main() {
             }
 
         }
-        void show() {
+        void show(int precision = 3) {
+            cout.setf(std::ios::fixed);
+            cout.precision(precision);
             for (int i = 0; i < this->x; i++) {
                 for (int k = 0; k < z; k++) {
                     cout << this->matrix [i][y-1][k] << " ";
@@ -199,7 +201,48 @@ int main() {
                 cout << endl;
             }
         }
-
+        __host__ void write_file(std::string prefix = "file_", int precision = 3 ) {
+            std::ofstream answer( prefix + this->file_name , std::ios_base::trunc);
+            answer.setf(std::ios::fixed);
+            answer.precision(precision);
+            cudaDeviceSynchronize();
+            answer << "------Сторона XZ сверху-------" << endl;
+            for (int i = 0; i < this->x; i++) {
+                for (int k = 0; k < z; k++) {
+                    answer << this->matrix [i][y-1][k] << " ";
+                }
+                answer << endl;
+            }
+            answer << "-------------" << endl;
+            for (int j = 0; j < y; j++) {
+                for (int i = 0; i < x; i++) {
+                    answer << this->matrix[i][j][(int)(z/2)] << " ";
+                }
+                answer << endl;
+            }
+            answer << "-------------" << endl;
+            for (int j = 0; j < y; j++) {
+                for (int k = 0; k < z; k++) {
+                    answer << this->matrix[(int)(x/2)][j][k] << " ";
+                }
+                answer << endl;
+            }
+            answer << "-------------" << endl;
+            for (int j = 0; j < y; j++) {
+                for (int i = 0; i < x; i++) {
+                    answer << this->matrix[i][j][(int)(z-1)] << " ";
+                }
+                answer << endl;
+            }
+            answer << "-------------" << endl;
+            for (int j = 0; j < y; j++) {
+                for (int i = 0; i < x; i++) {
+                    answer << this->matrix[i][j][(int)(0)] << " ";
+                }
+                answer << endl;
+            }
+            answer.close();
+        }
         void visualize() {
             /*
              Пример отрисовки:
@@ -248,7 +291,7 @@ int main() {
 
     };
 
-     __global__ class make_cube {
+    __global__ class make_cube {
     private:
         __host__ __device__ int index(int x, int y, int z) {
             return x + this->x * (y + this->y * z);
@@ -256,7 +299,7 @@ int main() {
         }
 
     public:
-         std::string file_name = "gpumatrix";
+        std::string file_name = "gpumatrix";
         thrust::device_vector<float> matrix;
         int x=2,y=2,z=2, radius = 2;
         float T1 = 20.0f;              // температура 1 стороны
@@ -342,7 +385,17 @@ int main() {
             cudaMemcpy(obj, this, sizeof(make_cube), cudaMemcpyHostToDevice);
 
             //MakeMat_byKernel<<< dim3(16,16,16), dim3((this->x+ 15) / 16, (this->y+ 15) / 16, (this->z+ 15) / 16) >>>(obj, ptr );
-            dim3 blocks(2, 2, 2);
+            /*dim3 blocks(2, 2, 2);
+            MakeMat_byKernel<<<
+            dim3(
+                    (this->x+ blocks.x-1) / blocks.x,
+                    (this->y+ blocks.y-1) / blocks.y,
+                    (this->z+ blocks.z-1) / blocks.z),
+            blocks
+            >>>(obj, ptr );*/
+            dim3 blocks(this->x % 2 == 0 ? 2 : 1,
+                        this->y % 2 == 0 ? 2 : 1,
+                        this->z % 2 == 0 ? 2 : 1);
             MakeMat_byKernel<<<
             dim3(
                     (this->x+ blocks.x-1) / blocks.x,
@@ -475,17 +528,22 @@ int main() {
             int x1 = config.thread.x + config.block.x * config.blockDim.x; // допустим, коорда подана: (3,0,0), решает как 3+0, 3+1, 3+2. Если коорда (0,0,0), выдаст 0+0, 0+1
             int y1 = config.thread.y + config.block.y * config.blockDim.y;
             int z1 = config.thread.z + config.block.z * config.blockDim.z;
-            if(x1+xpos >= this->x || y1+ypos >= this->y || z1+zpos >= this->z) return ;
             if(obj->run_test) {
-                printf("Getted: (%d,%d,%d) + (%d,%d,%d) => (%d,%d,%d) output=%.4f checked=%d\n", x1, y1, z1, xpos, ypos, zpos, x1+xpos, y1+ypos, z1+zpos, *output,
-                       this->radius < (float)std::sqrt(std::pow(x1 - (float)(this->x / 2), 2) + std::pow(z1 - (float)(this->z / 2), 2)));
+                printf("Getted: (%d,%d,%d) + (%d,%d,%d) => (%d,%d,%d) output=%.4f checked=%d overwriteX=%d overwriteY=%d overwriteZ=%d\n",
+                       x1, y1, z1, xpos, ypos, zpos, x1+xpos, y1+ypos, z1+zpos, *output,
+                       this->radius < (float)std::sqrt(std::pow(x1 - (float)(this->x / 2), 2) + std::pow(z1 - (float)(this->z / 2), 2)),
+                       x1+xpos >= this->x, y1+ypos >= this->y, z1+zpos >= this->z
+
+                       );
+
             }
+            if(x1+xpos >= this->x || y1+ypos >= this->y || z1+zpos >= this->z) return ;
             if(obj->radius < (float)std::sqrt(std::pow(xpos+ x1 - (float)(obj->x / 2), 2) + std::pow(zpos + z1 - (float)(obj->z / 2), 2)))
             {
                 atomicAdd(output, mat[index(xpos+x1, ypos+y1, zpos+z1)]);      // на каждом блоке отдельные адреса, нельзя просто суммировать адреса
                 if(obj->show_iter) {
                     float temp = mat[index(xpos + x1, ypos + y1, zpos + z1)];
-                    printf("+%.1f", temp);
+                    printf("+%.1f(%d,%d,%d)", temp, xpos+x1, ypos+y1, zpos+z1);
                 }
                 //(*output) += mat[index(x1, y1, z1)];
 
@@ -578,54 +636,55 @@ int main() {
 
 
 
-__global__ void MakeMat_byKernel(make_cube * obj , thrust::device_ptr<float> data) {
-    //printf("Config: blocks (%d,%d,%d), threads (%d,%d,%d), blockDim(%d,%d,%d)\n",blockIdx.x, blockIdx.y, blockIdx.z, threadIdx.x, threadIdx.y,threadIdx.z,blockDim.x,blockDim.y,blockDim.z);
-    dataId config = { {threadIdx.x, threadIdx.y, threadIdx.z}, {blockIdx.x, blockIdx.y, blockIdx.z}, {blockDim.x, blockDim.y, blockDim.z} };
-    //printf("Verify: blocks (%d,%d,%d), threads (%d,%d,%d), blockDim(%d,%d,%d)\n", config.block.x, config.block.y, config.block.z, config.thread.x, config.thread.y,config.thread.z,config.blockDim.x,config.blockDim.y,config.blockDim.z);
-    obj->MakeMat( data, obj, config );
-    if(obj->run_test) {
-        int threadId = threadIdx.x + blockDim.x * (threadIdx.y + blockDim.y * threadIdx.z);
-        int blockId = blockIdx.x + gridDim.x * (blockIdx.y + gridDim.y * blockIdx.z);
-        int numThreads = blockDim.x * blockDim.y * blockDim.z;
-        int numBlocks = gridDim.x * gridDim.y * gridDim.z;
-        if (threadId == 0 && blockId == 0) {
-            // Вывод информации только из одного потока в блоке 0
-            printf("\nMakeMat_byKernel:\n");
-            printf("\tNumber of Threads: %d\n", numThreads);
-            printf("\tNumber of Blocks: %d\n", numBlocks);
-            printf("\tblockDim: (%d, %d, %d)\n", blockDim.x, blockDim.y, blockDim.z);
-            printf("\tgridDim: (%d, %d, %d)\n", gridDim.x, gridDim.y, gridDim.z);
-            printf("\tDebug values:\n");
-            printf("\t\tX=%d, Y=%d, Z=%d, radius=%d\n", obj->x, obj->y, obj->z, obj->radius);
-            printf("\t\trun_test=%d, maxIteration=%d, eps=%f \n", obj->run_test, obj->maxIteration, obj->eps);
-            printf("\t\talpha=%f, T1=%f, T2=%f \n", obj->alpha, obj->T1, obj->T2);
+    __global__ void MakeMat_byKernel(make_cube * obj , thrust::device_ptr<float> data) {
+        //printf("Config: blocks (%d,%d,%d), threads (%d,%d,%d), blockDim(%d,%d,%d)\n",blockIdx.x, blockIdx.y, blockIdx.z, threadIdx.x, threadIdx.y,threadIdx.z,blockDim.x,blockDim.y,blockDim.z);
+        dataId config = { {threadIdx.x, threadIdx.y, threadIdx.z}, {blockIdx.x, blockIdx.y, blockIdx.z}, {blockDim.x, blockDim.y, blockDim.z} };
+        //printf("Verify: blocks (%d,%d,%d), threads (%d,%d,%d), blockDim(%d,%d,%d)\n", config.block.x, config.block.y, config.block.z, config.thread.x, config.thread.y,config.thread.z,config.blockDim.x,config.blockDim.y,config.blockDim.z);
+        obj->MakeMat( data, obj, config );
+        if(obj->run_test) {
+            int threadId = threadIdx.x + blockDim.x * (threadIdx.y + blockDim.y * threadIdx.z);
+            int blockId = blockIdx.x + gridDim.x * (blockIdx.y + gridDim.y * blockIdx.z);
+            int numThreads = blockDim.x * blockDim.y * blockDim.z;
+            int numBlocks = gridDim.x * gridDim.y * gridDim.z;
+            if (threadId == 0 && blockId == 0) {
+                // Вывод информации только из одного потока в блоке 0
+                printf("\nMakeMat_byKernel:\n");
+                printf("\tNumber of Threads: %d\n", numThreads);
+                printf("\tNumber of Blocks: %d\n", numBlocks);
+                printf("\tblockDim: (%d, %d, %d)\n", blockDim.x, blockDim.y, blockDim.z);
+                printf("\tgridDim: (%d, %d, %d)\n", gridDim.x, gridDim.y, gridDim.z);
+                printf("\tDebug values:\n");
+                printf("\t\tX=%d, Y=%d, Z=%d, radius=%d\n", obj->x, obj->y, obj->z, obj->radius);
+                printf("\t\trun_test=%d, maxIteration=%d, eps=%f \n", obj->run_test, obj->maxIteration, obj->eps);
+                printf("\t\talpha=%f, T1=%f, T2=%f \n", obj->alpha, obj->T1, obj->T2);
+            }
         }
     }
-}
-__global__ void collect_byKernel(make_cube * obj , thrust::device_ptr<float> data, float* output, int x, int y, int z ) {
-    //printf("Config: blocks (%d,%d,%d), threads (%d,%d,%d)\n",blockDim.x, blockDim.y, blockDim.z, threadIdx.x, threadIdx.y,threadIdx.z);
-    dataId config = { {threadIdx.x, threadIdx.y, threadIdx.z}, {blockIdx.x, blockIdx.y, blockIdx.z}, {blockDim.x, blockDim.y, blockDim.z} };
-    obj->collectNeighbors( data, config, output, x,y,z, obj );
-    if(obj->run_test) {
-        int threadId = threadIdx.x + blockDim.x * (threadIdx.y + blockDim.y * threadIdx.z);
-        int blockId = blockIdx.x + gridDim.x * (blockIdx.y + gridDim.y * blockIdx.z);
-        int numThreads = blockDim.x * blockDim.y * blockDim.z;
-        int numBlocks = gridDim.x * gridDim.y * gridDim.z;
-        if (threadId == 0 && blockId == 0) {
-            printf("\ncollect_byKernel:\n");
-            // Вывод информации только из одного потока в блоке 0
-            printf("\tNumber of Threads: %d\n", numThreads);
-            printf("\tNumber of Blocks: %d\n", numBlocks);
-            printf("\tblockDim: (%d, %d, %d)\n", blockDim.x, blockDim.y, blockDim.z);
-            printf("\tgridDim: (%d, %d, %d)\n", gridDim.x, gridDim.y, gridDim.z);
-            printf("\tDebug values:\n");
-            printf("\t\tX=%d, Y=%d, Z=%d, radius=%d\n", obj->x, obj->y, obj->z, obj->radius);
-            printf("\t\trun_test=%d, maxIteration=%d, eps=%f \n", obj->run_test, obj->maxIteration, obj->eps);
-            printf("\t\talpha=%f, T1=%f, T2=%f \n", obj->alpha, obj->T1, obj->T2);
+    __global__ void collect_byKernel(make_cube * obj , thrust::device_ptr<float> data, float* output, int x, int y, int z ) {
+        //printf("Config: blocks (%d,%d,%d), threads (%d,%d,%d)\n",blockDim.x, blockDim.y, blockDim.z, threadIdx.x, threadIdx.y,threadIdx.z);
+        dataId config = { {threadIdx.x, threadIdx.y, threadIdx.z}, {blockIdx.x, blockIdx.y, blockIdx.z}, {blockDim.x, blockDim.y, blockDim.z} };
+        obj->collectNeighbors( data, config, output, x,y,z, obj );
+        if(obj->run_test) {
+            int threadId = threadIdx.x + blockDim.x * (threadIdx.y + blockDim.y * threadIdx.z);
+            int blockId = blockIdx.x + gridDim.x * (blockIdx.y + gridDim.y * blockIdx.z);
+            int numThreads = blockDim.x * blockDim.y * blockDim.z;
+            int numBlocks = gridDim.x * gridDim.y * gridDim.z;
+            if (threadId == 0 && blockId == 0) {
+                printf("\ncollect_byKernel:\n");
+                // Вывод информации только из одного потока в блоке 0
+                printf("\tNumber of Threads: %d\n", numThreads);
+                printf("\tNumber of Blocks: %d\n", numBlocks);
+                printf("\tblockDim: (%d, %d, %d)\n", blockDim.x, blockDim.y, blockDim.z);
+                printf("\tgridDim: (%d, %d, %d)\n", gridDim.x, gridDim.y, gridDim.z);
+                printf("\tDebug values:\n");
+                printf("\t\tX=%d, Y=%d, Z=%d, radius=%d\n", obj->x, obj->y, obj->z, obj->radius);
+                printf("\t\trun_test=%d, maxIteration=%d, eps=%f \n", obj->run_test, obj->maxIteration, obj->eps);
+                printf("\t\talpha=%f, T1=%f, T2=%f \n", obj->alpha, obj->T1, obj->T2);
+            }
         }
-    }
-    __syncthreads();
+        __syncthreads();
 
+    }
 }
 
 
@@ -640,13 +699,12 @@ __global__ void kernel() {
 
 
 int main() {
-    cout.setf(std::ios::fixed); cout.precision(3);
     std::cout << "Hello, World!" << std::endl;
-    int x = 5, y = 3, z = 5;
-    float radius = 2.0f;
-    float alpha = 0.001f;
+    int x = 12, y = 4, z = 11;
+    float radius = 3.0f;
+    float alpha = 0.05351f;
     float eps = 0.01f;
-    int maxIter = 50;
+    int maxIter = 10;
     bool run_test = false;
     bool show_iter = false;
     if(x%2 != 0 || y%2 != 0 || z%2 != 0) {
@@ -658,13 +716,17 @@ int main() {
     //cube_gpu.show();
     //kernel<<<1,1>>>();
     // =================cpu zone
-    cpu cube_cpu(x, y, z, radius);
+    matrixer::cpu cube_cpu(x, y, z, radius);
     cube_cpu.alpha = alpha;
     cube_cpu.computeMat();
-    cube_cpu.iteration(eps, maxIter);
+    //cube_cpu.iteration(eps, maxIter);
+    cout << "CPU: \n";
+    //cube_cpu.show();
+
+    //cube_cpu.write_file("output_");
     // =================cpu zone
     // =================make_cube zone
-    make_cube cube_gpu(x, y, z, radius);
+    matrixer::make_cube cube_gpu(x, y, z, radius);
     //cube_gpu.machine_info();
     cube_gpu.run_test = run_test;
     cube_gpu.show_iter = show_iter;
@@ -681,8 +743,10 @@ int main() {
     //make_cube * obj;
     cube_gpu.computeMat();
     cube_gpu.iterateMat();
-    //cube_gpu.write_file("output_");
     cube_gpu.show();
+    //cube_gpu.write_file("output_");
+    cout << "GPU: \n";
+
     // =================make_cube zone
     return 0;
 }
