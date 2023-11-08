@@ -9,12 +9,29 @@
 #include <cmath>
 #include <string>
 #include <fstream>
-#include <omp.h>
+#include <time.h>
+#include <unistd.h>
 //#include "matrixer.h"
 using std::cout;
 using std::cin;
 using std::endl;
 using std::vector;
+#define NS_PER_SECOND 1000000000
+void sub_timespec(struct timespec t1, struct timespec t2, struct timespec *td)
+{
+    td->tv_nsec = t2.tv_nsec - t1.tv_nsec;
+    td->tv_sec  = t2.tv_sec - t1.tv_sec;
+    if (td->tv_sec > 0 && td->tv_nsec < 0)
+    {
+        td->tv_nsec += NS_PER_SECOND;
+        td->tv_sec--;
+    }
+    else if (td->tv_sec < 0 && td->tv_nsec > 0)
+    {
+        td->tv_nsec -= NS_PER_SECOND;
+        td->tv_sec++;
+    }
+}
 struct dataId {
     struct th {
         unsigned int x;
@@ -72,7 +89,7 @@ namespace matrixer {
     __global__ void MakeMat_byKernel(make_cube * obj , thrust::device_ptr<float> data);
     __global__ void collect_byKernel(make_cube * obj , thrust::device_ptr<float> data, float* output, int x, int y, int z);
     class cpu {
-        typedef vector<vector<vector<double>>> matrix_type;
+        typedef vector<vector<vector<float>>> matrix_type;
     public:
 
         cpu(int x, int y, int z){
@@ -80,22 +97,22 @@ namespace matrixer {
             this->y = y;
             this->z = z;
         }
-        cpu(int x, int y, int z, double cylinder_radius) : cpu(x,y,z) {
+        cpu(int x, int y, int z, float cylinder_radius) : cpu(x,y,z) {
             /*if(cylinder_radius > (float)(x/2) && cylinder_radius > (float)(y/2) && cylinder_radius > (float)(z/2))  {
                 throw std::runtime_error("Cylinder is out of cube");
             }*/
             this->radius = cylinder_radius;
-            matrix = matrix_type(x, vector<vector<double>>(y,vector<double>(z, 0)));
+            matrix = matrix_type(x, vector<vector<float>>(y,vector<float>(z, 0)));
         }
         ~cpu() {
             this->matrix.clear();
         }
         std::string file_name = "cpumatrix";
         int x=2,y=2,z=2, radius = 2;
-        double T1 = 20.0f;              // температура 1 стороны
-        double T2 = 10.0f;              // температура противоположной стороны
-        double T_bottom = 0.0f;         // температура нижней грани
-        double alpha = 0.05351f;           // коэф теплопроводности
+        float T1 = 20.0f;              // температура 1 стороны
+        float T2 = 10.0f;              // температура противоположной стороны
+        float T_bottom = 0.0f;         // температура нижней грани
+        float alpha = 0.05351f;           // коэф теплопроводности
         bool show_iter = false;
         /*-----matrix-----*/
         matrix_type matrix;
@@ -121,19 +138,19 @@ namespace matrixer {
             this->T1 = 100 - (rand() % 50);
             this->T2 = 100 - (rand() % 50);
         }
-        void iteration (double eps = 0.0001f, int maxIteration=10000) { // using basic matrix iterator
+        void iteration (float eps = 0.0001f, int maxIteration=10000) { // using basic matrix iterator
 
-            double norm = 1;
+            float norm = 1;
             int count = 0;
             while (norm > eps && count < maxIteration) {
                 // перебор каждой точки
                 for(int i = 0; i < this->x; i++) {
                     for (int j = 0; j < this->y; j++) {
                         for (int k = 0; k < this->z; k++) {
-
+                            sleep(0.01f);
                             // просмотр соседей и сумма новой температуры
-                            double oldTemp = this->matrix[i][j][k];
-                            double newTemp = 0.0f;
+                            float oldTemp = this->matrix[i][j][k];
+                            float newTemp = 0.0f;
                             if(this->show_iter){ cout << "newtemp = "; }
                             for(int x1 = ((i>0) ? i-1 : i) ; x1 <= i+1 && x1 < this->x; x1++) {
                                 for(int y1 = ((j>0) ? j-1 : j); y1 <= j+1 && y1 < this->y; y1++) {
@@ -418,17 +435,18 @@ namespace matrixer {
 
         }
         void iterateMat() {
-            //int N = this->y*this->x*this->z;
-            auto collector = [this](int i, int j, int k ) -> float {  // вызов kernel из host
+            //int N = this->y*this->x*this->z;+
+            make_cube * obj;
+            cudaMalloc(&obj, sizeof(make_cube));
+            cudaMemcpy(obj, this, sizeof(make_cube), cudaMemcpyHostToDevice);
+            auto collector = [this, obj](int i, int j, int k ) -> float {  // вызов kernel из host
                 float value = 0;
                 float * value_ptr;
                 cudaMalloc(&value_ptr, sizeof(float));
                 cudaMemcpy(value_ptr, &value, sizeof(float), cudaMemcpyHostToDevice);
 
                 thrust::device_ptr<float> ptr = thrust::device_pointer_cast<float>(this->matrix.data());
-                make_cube * obj;
-                cudaMalloc(&obj, sizeof(make_cube));
-                cudaMemcpy(obj, this, sizeof(make_cube), cudaMemcpyHostToDevice);
+
                 /*
                   for(int x1 = ((i>0) ? i-1 : i) ; x1 <= i+1 && x1 < this->x; x1++) {
                                 for(int y1 = ((j>0) ? j-1 : j); y1 <= j+1 && y1 < this->y; y1++) {
@@ -445,18 +463,10 @@ namespace matrixer {
                 ),blocks
 
                 >>>(obj, ptr, value_ptr, ((i>0)? i-1 : i), ((j>0)? j-1 : j), ((k>0)? k-1 : k) );
-                /*dim3 blocks(2,2,3);
-                collect_byKernel <<<blocks,
-                dim3(
-                        1,
-                        1,
-                        1
-                )
-                >>>(obj, ptr, value_ptr, ((i>0)? i-1 : i), ((j>0)? j-1 : j), ((k>0)? k-1 : k) );*/
-                cudaDeviceSynchronize();
+                //cudaDeviceSynchronize();
                 cudaMemcpy(this, obj, sizeof(make_cube), cudaMemcpyDeviceToHost);
                 cudaMemcpy(&value, value_ptr, sizeof(float), cudaMemcpyDeviceToHost);                   // еблан забывать float?
-                cudaFree(obj);
+
                 cudaFree(value_ptr);
 
                 return value;
@@ -500,7 +510,7 @@ namespace matrixer {
                 }
                 count++;
             }
-
+            cudaFree(obj);
         }
         __device__ void MakeMat(thrust::device_ptr<float> mat, make_cube * obj, dataId config ) {
             int x1 = config.thread.x + config.block.x * config.blockDim.x;
@@ -524,7 +534,6 @@ namespace matrixer {
             }
         }
         __device__ void collectNeighbors (thrust::device_ptr<float> mat, dataId config, float* output, int xpos, int ypos, int zpos, make_cube * obj) { // using basic matrix iterator
-
             int x1 = config.thread.x + config.block.x * config.blockDim.x; // допустим, коорда подана: (3,0,0), решает как 3+0, 3+1, 3+2. Если коорда (0,0,0), выдаст 0+0, 0+1
             int y1 = config.thread.y + config.block.y * config.blockDim.y;
             int z1 = config.thread.z + config.block.z * config.blockDim.z;
@@ -682,7 +691,7 @@ namespace matrixer {
                 printf("\t\talpha=%f, T1=%f, T2=%f \n", obj->alpha, obj->T1, obj->T2);
             }
         }
-        __syncthreads();
+        //__syncthreads();
 
     }
 }
@@ -700,32 +709,52 @@ __global__ void kernel() {
 
 int main() {
     std::cout << "Hello, World!" << std::endl;
-    int x = 12, y = 4, z = 11;
+    int x = 100, y = 3, z = 100;
     float radius = 3.0f;
     float alpha = 0.05351f;
     float eps = 0.01f;
     int maxIter = 10;
     bool run_test = false;
     bool show_iter = false;
+    std::string yes;
+
+    cout << "Enter size (x,y,z,radius): "; cin >> x >> y >> z >> radius;
+    cout << "Enter alpha: "; cin >> alpha;
+    cout << "Enter eps: "; cin >> eps;
+    cout << "Enter maximum of iterations: "; cin >> maxIter;
+    cout << "Run test? (y/n): ";
+    if (!getline(cin>>std::ws,yes,'\n')) return true;
+    run_test = (yes == "y");
+    cout << "Show iteration? (y/n): ";
+    if (!getline(cin>>std::ws,yes,'\n')) return true;
+    show_iter = (yes == "y");
+
+
     if(x%2 != 0 || y%2 != 0 || z%2 != 0) {
         std::cerr << "WARNING: scary input (multiples of 2 are required)! " << endl;
     }
-
     //gpu_main<<<1,1>>>( thrust::device_pointer_cast<float>( matrix.data() ), x,y,z );
     //show();
     //cube_gpu.show();
     //kernel<<<1,1>>>();
     // =================cpu zone
+    timespec start, finish, delta;
+
     matrixer::cpu cube_cpu(x, y, z, radius);
     cube_cpu.alpha = alpha;
+    clock_gettime(CLOCK_REALTIME, &start);
     cube_cpu.computeMat();
-    //cube_cpu.iteration(eps, maxIter);
+    cube_cpu.iteration(eps, maxIter);
+    clock_gettime(CLOCK_REALTIME, &finish);
+    sub_timespec(start, finish, &delta);
+    cube_cpu.write_file("output_");
     cout << "CPU: \n";
+    cout << "Execute time = " << delta.tv_sec << "," << delta.tv_nsec << " took seconds\n";
     //cube_cpu.show();
-
     //cube_cpu.write_file("output_");
     // =================cpu zone
     // =================make_cube zone
+
     matrixer::make_cube cube_gpu(x, y, z, radius);
     //cube_gpu.machine_info();
     cube_gpu.run_test = run_test;
@@ -742,10 +771,15 @@ int main() {
     cube_gpu.maxIteration = maxIter;
     //make_cube * obj;
     cube_gpu.computeMat();
+    clock_gettime(CLOCK_REALTIME, &start);
     cube_gpu.iterateMat();
-    cube_gpu.show();
+    //cube_gpu.show();
     //cube_gpu.write_file("output_");
+    clock_gettime(CLOCK_REALTIME, &finish);
+    sub_timespec(start, finish, &delta);
+    cube_gpu.write_file("output_");
     cout << "GPU: \n";
+    cout << "Execute time = " << delta.tv_sec << "," << delta.tv_nsec << " took seconds\n";
 
     // =================make_cube zone
     return 0;

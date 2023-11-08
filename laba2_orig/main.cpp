@@ -80,7 +80,7 @@ public:
                         // просмотр соседей и сумма новой температуры
                         double oldTemp = this->matrix[i][j][k];
                         double newTemp = 0.0f;
-                        cout << "newtemp = ";
+                        //cout << "newtemp = ";
                         for(int x1 = ((i>0) ? i-1 : i) ; x1 <= i+1 && x1 < this->x; x1++) {
                             for(int y1 = ((j>0) ? j-1 : j); y1 <= j+1 && y1 < this->y; y1++) {
                                 for(int z1 = ((k>0) ? k-1 : k); z1 <= k+1 && z1 < this->z; z1++) {
@@ -88,7 +88,7 @@ public:
                                     if (this->radius < (float) std::sqrt(std::pow(x1 - (float) (this->x / 2), 2) +
                                                                          std::pow(z1 - (float) (this->z / 2),
                                                                                   2)) /*&& std::abs(y1 - (this->y / 2)) <= (this->y / 2)*/) {
-                                        cout << " + " << this->matrix[x1][y1][z1];
+                                        //cout << " + " << this->matrix[x1][y1][z1];
                                         newTemp += this->matrix[x1][y1][z1];
                                     }
 
@@ -98,9 +98,9 @@ public:
                         //newTemp *= this->alpha; // формула распределения: dT/dt = alpha * ( (d^2T/dx^2) + (d^2T/dy^2) + (d^2T/dz^2) )
                                                   // т.е. нужно взять от зависимой точки сумму всех соседей и умножить на коэф распределения
 
-                        cout << endl;
+                        //cout << endl;
                         this->matrix[i][j][k] = newTemp * this->alpha;
-                        cout << "newtemp=" << newTemp << " matrix=" << this->matrix[i][j][k] << " (" << i << "," << j << "," << k << ")" << endl;
+                        //cout << "newtemp=" << newTemp << " matrix=" << this->matrix[i][j][k] << " (" << i << "," << j << "," << k << ")" << endl;
                         norm = std::abs( newTemp - oldTemp );
                     }
                 }
@@ -197,7 +197,7 @@ private:
 int main() {
     cout << cout.setf(std::ios::fixed) << cout.precision(3) << endl;
     std::cout << "Hello, World!" << std::endl;
-    int x = 12, y = 4, z = 11;
+    int x = 10, y = 10, z = 50;
 
     make_cube cube(x,y,z, 3.0f);
     cube.alpha= 0.05351f; //0.05351f;
