@@ -17,6 +17,7 @@ using std::cin;
 using std::endl;
 using std::vector;
 #define NS_PER_SECOND 1000000000
+
 void sub_timespec(struct timespec t1, struct timespec t2, struct timespec *td)
 {
     td->tv_nsec = t2.tv_nsec - t1.tv_nsec;
@@ -89,7 +90,7 @@ namespace matrixer {
     __global__ void MakeMat_byKernel(make_cube * obj , thrust::device_ptr<float> data);
     __global__ void collect_byKernel(make_cube * obj , thrust::device_ptr<float> data, float* output, int x, int y, int z);
     class cpu {
-        typedef vector<vector<vector<float>>> matrix_type;
+        typedef vector< vector < vector< float > > > matrix_type;
     public:
 
         cpu(int x, int y, int z){
@@ -102,7 +103,7 @@ namespace matrixer {
                 throw std::runtime_error("Cylinder is out of cube");
             }*/
             this->radius = cylinder_radius;
-            matrix = matrix_type(x, vector<vector<float>>(y,vector<float>(z, 0)));
+            matrix = matrix_type(x, vector< vector < float > >(y,vector< float >(z, 0)));
         }
         ~cpu() {
             this->matrix.clear();
@@ -219,7 +220,7 @@ namespace matrixer {
             }
         }
         __host__ void write_file(std::string prefix = "file_", int precision = 3 ) {
-            std::ofstream answer( prefix + this->file_name , std::ios_base::trunc);
+            std::ofstream answer( this->file_name.c_str() , std::ios_base::trunc);
             answer.setf(std::ios::fixed);
             answer.precision(precision);
             cudaDeviceSynchronize();
@@ -327,6 +328,7 @@ namespace matrixer {
         int maxIteration=50;
         bool run_test = false;                  // Ручной откладчик потоков и блоков
         bool show_iter = false;                 // Ручной откладчик итерации
+
         __host__ void genValue() {
             srand(time(NULL));
             this->T1 = 100 - (rand() % 50);
@@ -439,45 +441,30 @@ namespace matrixer {
             make_cube * obj;
             cudaMalloc(&obj, sizeof(make_cube));
             cudaMemcpy(obj, this, sizeof(make_cube), cudaMemcpyHostToDevice);
-            auto collector = [this, obj](int i, int j, int k ) -> float {  // вызов kernel из host
-                float value = 0;
-                float * value_ptr;
-                cudaMalloc(&value_ptr, sizeof(float));
-                cudaMemcpy(value_ptr, &value, sizeof(float), cudaMemcpyHostToDevice);
 
-                thrust::device_ptr<float> ptr = thrust::device_pointer_cast<float>(this->matrix.data());
-
-                /*
-                  for(int x1 = ((i>0) ? i-1 : i) ; x1 <= i+1 && x1 < this->x; x1++) {
-                                for(int y1 = ((j>0) ? j-1 : j); y1 <= j+1 && y1 < this->y; y1++) {
-                                    for(int z1 = ((k>0) ? k-1 : k); z1 <= k+1 && z1 < this->z; z1++) {
-                 */
-                //MakeMat_byKernel<<< dim3(this->x, this->y-1, this->z), dim3((this->x+ 15) / 16, (this->y+ 15) / 16, (this->z+ 15) / 16) >>>(obj, ptr );
-                dim3 blocks(1,1,1);
-
-                collect_byKernel <<<
-                dim3(
-                        ((i > 0) ? 3 : 2), // Исправлено на 3, чтобы учесть случай, когда i равно 0
-                        ((j > 0) ? 3 : 2), // Исправлено на 3, чтобы учесть случай, когда j равно 0
-                        ((k > 0) ? 3 : 2)  // Исправлено на 3, чтобы учесть случай, когда k равно 0
-                ),blocks
-
-                >>>(obj, ptr, value_ptr, ((i>0)? i-1 : i), ((j>0)? j-1 : j), ((k>0)? k-1 : k) );
-                //cudaDeviceSynchronize();
-                cudaMemcpy(this, obj, sizeof(make_cube), cudaMemcpyDeviceToHost);
-                cudaMemcpy(&value, value_ptr, sizeof(float), cudaMemcpyDeviceToHost);                   // еблан забывать float?
-
-                cudaFree(value_ptr);
-
-                return value;
-            };
             if(this->run_test) {
                 cudaDeviceSynchronize();
                 std::cerr << "----------------BLOCK TEST----------------" << std::endl;
                 cudaDeviceSynchronize();
                 //sleep(1);
                 int i=0,j=3,k=0;    // test input
-                int test = collector(i, j, k);
+                float test = 0;
+                float * value_ptr;
+                cudaMalloc(&value_ptr, sizeof(float));
+                cudaMemcpy(value_ptr, &test, sizeof(float), cudaMemcpyHostToDevice);
+
+                thrust::device_ptr<float> ptr = thrust::device_pointer_cast<float>(this->matrix.data());
+                dim3 blocks(1,1,1);
+                collect_byKernel <<<
+                dim3(
+                        ((i > 0) ? 3 : 2), // Исправлено на 3, чтобы учесть случай, когда i равно 0
+                        ((j > 0) ? 3 : 2), // Исправлено на 3, чтобы учесть случай, когда j равно 0
+                        ((k > 0) ? 3 : 2)  // Исправлено на 3, чтобы учесть случай, когда k равно 0
+                ),blocks
+                >>>(obj, ptr, value_ptr, ((i>0)? i-1 : i), ((j>0)? j-1 : j), ((k>0)? k-1 : k) );
+                cudaMemcpy(this, obj, sizeof(make_cube), cudaMemcpyDeviceToHost);
+                cudaMemcpy(&test, value_ptr, sizeof(float), cudaMemcpyDeviceToHost);
+                cudaFree(value_ptr);
                 cudaDeviceSynchronize();
                 sleep(1.2);
                 std::cerr << "VERIFY BLOCKS: " << (i>0 ? 3 : 2) * (j>0 ? 3 : 2) * (k>0 ? 3 : 2) << endl;
@@ -495,7 +482,26 @@ namespace matrixer {
                             // просмотр соседей и сумма новой температуры
                             float oldTemp = this->matrix[index(i, j, k)];
                             if(this->show_iter) { cout << "newtemp="; }
-                            float newTemp = collector(i, j, k);
+                            float newTemp = 0;
+
+                            float * value_ptr;
+                            cudaMalloc(&value_ptr, sizeof(float));
+                            cudaMemcpy(value_ptr, &newTemp, sizeof(float), cudaMemcpyHostToDevice);
+
+                            thrust::device_ptr<float> ptr = thrust::device_pointer_cast<float>(this->matrix.data());
+                            dim3 blocks(1,1,1);
+
+                            collect_byKernel <<<
+                            dim3(
+                                    ((i > 0) ? 3 : 2), // Исправлено на 3, чтобы учесть случай, когда i равно 0
+                                    ((j > 0) ? 3 : 2), // Исправлено на 3, чтобы учесть случай, когда j равно 0
+                                    ((k > 0) ? 3 : 2)  // Исправлено на 3, чтобы учесть случай, когда k равно 0
+                            ),blocks
+                            >>>(obj, ptr, value_ptr, ((i>0)? i-1 : i), ((j>0)? j-1 : j), ((k>0)? k-1 : k) );
+                            //cudaDeviceSynchronize();
+                            cudaMemcpy(this, obj, sizeof(make_cube), cudaMemcpyDeviceToHost);
+                            cudaMemcpy(&newTemp, value_ptr, sizeof(float), cudaMemcpyDeviceToHost);                   // еблан забывать float?
+                            cudaFree(value_ptr);
                             if(this->show_iter) { cout << endl; }
                             //newTemp *= this->alpha; // формула распределения: dT/dt = alpha * ( (d^2T/dx^2) + (d^2T/dy^2) + (d^2T/dz^2) )
                             // т.е. нужно взять от зависимой точки сумму всех соседей и умножить на коэф распределения
@@ -600,7 +606,7 @@ namespace matrixer {
             }
         }
         __host__ void write_file(std::string prefix = "file_", int precision = 3 ) {
-            std::ofstream answer( prefix + this->file_name , std::ios_base::trunc);
+            std::ofstream answer( this->file_name.c_str() , std::ios_base::trunc);
             answer.setf(std::ios::fixed);
             answer.precision(precision);
             cudaDeviceSynchronize();
@@ -618,7 +624,7 @@ namespace matrixer {
                 }
                 answer << endl;
             }
-            answer << "-------Сторона YZ при в разрезе------" << endl;
+            answer << "-------Сторона XZ при в разрезе------" << endl;
             for (int j = 0; j < this->y; j++) {
                 for (int k = 0; k < this->z; k++) {
                     answer << this->matrix[index((int)((this->x)/2), j, k)] << " ";
@@ -709,6 +715,14 @@ __global__ void kernel() {
 
 int main() {
     std::cout << "Hello, World!" << std::endl;
+    int deviceCount;
+    cudaGetDeviceCount(&deviceCount);
+    if(deviceCount-1 > 0) {
+        std::cout << "Select device (0-" << deviceCount-1 << "): " ;
+        int deviceid = 0;
+        cin >> deviceid;
+        cudaSetDevice(deviceid);
+    }
     int x = 100, y = 3, z = 100;
     float radius = 3.0f;
     float alpha = 0.05351f;
@@ -717,45 +731,36 @@ int main() {
     bool run_test = false;
     bool show_iter = false;
     std::string yes;
-
-    cout << "Enter size (x,y,z,radius): "; cin >> x >> y >> z >> radius;
-    cout << "Enter alpha: "; cin >> alpha;
-    cout << "Enter eps: "; cin >> eps;
-    cout << "Enter maximum of iterations: "; cin >> maxIter;
     cout << "Run test? (y/n): ";
     if (!getline(cin>>std::ws,yes,'\n')) return true;
     run_test = (yes == "y");
     cout << "Show iteration? (y/n): ";
     if (!getline(cin>>std::ws,yes,'\n')) return true;
     show_iter = (yes == "y");
+    cout << "Show GPU information? (y/n): ";
+    if (!getline(cin>>std::ws,yes,'\n')) return true;
+    cout << "Enter size (x,y,z,radius): "; cin >> x >> y >> z >> radius;
+    cout << "Enter alpha: "; cin >> alpha;
+    cout << "Enter eps: "; cin >> eps;
+    cout << "Enter maximum of iterations: "; cin >> maxIter;
+
+
 
 
     if(x%2 != 0 || y%2 != 0 || z%2 != 0) {
-        std::cerr << "WARNING: scary input (multiples of 2 are required)! " << endl;
+        std::cerr << "WARNING: scary input (multiples of 2 are required)!" << endl;
     }
     //gpu_main<<<1,1>>>( thrust::device_pointer_cast<float>( matrix.data() ), x,y,z );
     //show();
     //cube_gpu.show();
     //kernel<<<1,1>>>();
-    // =================cpu zone
     timespec start, finish, delta;
-
-    matrixer::cpu cube_cpu(x, y, z, radius);
-    cube_cpu.alpha = alpha;
-    clock_gettime(CLOCK_REALTIME, &start);
-    cube_cpu.computeMat();
-    cube_cpu.iteration(eps, maxIter);
-    clock_gettime(CLOCK_REALTIME, &finish);
-    sub_timespec(start, finish, &delta);
-    cube_cpu.write_file("output_");
-    cout << "CPU: \n";
-    cout << "Execute time = " << delta.tv_sec << "," << delta.tv_nsec << " took seconds\n";
-    //cube_cpu.show();
-    //cube_cpu.write_file("output_");
-    // =================cpu zone
     // =================make_cube zone
 
     matrixer::make_cube cube_gpu(x, y, z, radius);
+    if (yes == "y") {
+        cube_gpu.machine_info();
+    }
     //cube_gpu.machine_info();
     cube_gpu.run_test = run_test;
     cube_gpu.show_iter = show_iter;
@@ -782,6 +787,24 @@ int main() {
     cout << "Execute time = " << delta.tv_sec << "," << delta.tv_nsec << " took seconds\n";
 
     // =================make_cube zone
+    // =================cpu zone
+
+    if(run_test) return 0;
+
+    matrixer::cpu cube_cpu(x, y, z, radius);
+    cube_cpu.alpha = alpha;
+    clock_gettime(CLOCK_REALTIME, &start);
+    cube_cpu.computeMat();
+    cube_cpu.iteration(eps, maxIter);
+    clock_gettime(CLOCK_REALTIME, &finish);
+    sub_timespec(start, finish, &delta);
+    cube_cpu.write_file("output_");
+    cout << "CPU: \n";
+    cout << "Execute time = " << delta.tv_sec << "," << delta.tv_nsec << " took seconds\n";
+    //cube_cpu.show();
+    //cube_cpu.write_file("output_");
+    // =================cpu zone
+
     return 0;
 }
 
