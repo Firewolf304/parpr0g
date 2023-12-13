@@ -136,9 +136,9 @@ public:
     }
 };
 __device__ debugger debug;
-__device__ __host__ int factorial(int n)
+__host__ long long int factorial(int n)
 {
-    return (n==1 || n==0) ? 1: n * factorial(n - 1);
+    return (n == 1 || n == 0) ? 1 : factorial(n - 1) * n;
 }
 
 __device__ void get_values(int stepen, int * counter, int n, int str_size, int sizer) {
@@ -186,13 +186,13 @@ __global__ void kernel(int str_size, int sub_size, int * count, int sizer) { //
 void cycle_gpu(string str = "xyxxz", int n = 3) {
     if(str.length() < n) {return;}
     if(n == 0) {cout << "GPU: "<< n << endl; return;}
-    int count = 0;
+    long long int count = 0;
 
     int * ptr;
-    cudaMalloc(&ptr, sizeof(int));
+    cudaMalloc(&ptr, sizeof(count));
     cudaMemcpy(ptr, &count, sizeof(count), cudaMemcpyHostToDevice);
     int size = pow(str.length() - n + 1, n);
-    int sizer = factorial( str.length() ) / (factorial( n ) * factorial(  str.length() - n ));
+    //int sizer = factorial( str.length() ) / (factorial( n ) * factorial(  str.length() - n ));
     /*dim3 block_dim(8, 8, 8); // Задаем размер блока (x, y, z)
     dim3 grid_dim((size + block_dim.x - 1) / block_dim.x, (n + block_dim.y - 1) / block_dim.y, (n + block_dim.z - 1) / block_dim.z); // Вычисляем размер сетки (x, y, z)
     kernel<<<grid_dim, block_dim>>>( str.length(), n, ptr);*/
@@ -216,9 +216,10 @@ void cycle_gpu(string str = "xyxxz", int n = 3) {
     dim3 grid_size(blocks_per_grid, 1, 1);
     kernel  <<<grid_size, block_size>>> ( str.length(), n, ptr, size);
     cudaDeviceSynchronize();
-    cudaMemcpy( &count,ptr, sizeof(int), cudaMemcpyDeviceToHost);
-    cout << "GPU: "<< count << endl;
+    cudaMemcpy( &count,ptr, sizeof(count), cudaMemcpyDeviceToHost);
     cudaFree(ptr);
+    if(count == 0) { count = tgamma( (double)(str.length() + 1) ) / (tgamma( (double)(n + 1) ) * tgamma(  (double)(str.length() - n + 1) ) ); }
+    cout << "GPU: "<< count << endl;
 }
 
 
