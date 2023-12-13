@@ -223,19 +223,24 @@ void cycle_gpu(string str = "xyxxz", int n = 3) {
 
 
 int main() {
+    string text = "xyxxz";
+    cout << "Input text: ";
+    getline(cin>>std::ws,text,'\n');
+    int n = 3;
+    cout << "Input size of substring: ";
+    cin >> n;
     timespec start, finish, delta;
     clock_gettime(CLOCK_REALTIME, &start);
-    cycle_gpu("xyxxzxxdaww", 3);
+    cycle_gpu(text, n);
     clock_gettime(CLOCK_REALTIME, &finish);
     sub_timespec(start, finish, &delta);
     cout << "Execute time = " << delta.tv_sec << "," << delta.tv_nsec << " took seconds\n";
     clock_gettime(CLOCK_REALTIME, &start);
-    cycle_cpu("xyxxzxxdaww", 3);
+    cycle_cpu(text, n);
     clock_gettime(CLOCK_REALTIME, &finish);
     sub_timespec(start, finish, &delta);
     cout << "Execute time = " << delta.tv_sec << "," << delta.tv_nsec << " took seconds\n";
-    //cycle_gpu("xyxxzxxdawwawda", 5);
-    //cycle_cpu("xyxxzxxdawwawda", 5);
+
     /*
         string piece = "";
         for(int i = 0; i <= str.length() - n; i ++){
