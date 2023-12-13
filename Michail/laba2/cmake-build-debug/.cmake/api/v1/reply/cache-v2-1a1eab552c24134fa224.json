@@ -719,7 +719,7 @@
 				}
 			],
 			"type" : "STATIC",
-			"value" : "prod"
+			"value" : "laba2"
 		},
 		{
 			"name" : "CMAKE_RANLIB",
