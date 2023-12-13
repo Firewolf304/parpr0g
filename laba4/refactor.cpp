@@ -1,17 +1,20 @@
-//#define CL_USE_DEPRECATED_OPENCL_1_2_APIS
-#define CL_TARGET_OPENCL_VERSION 300
-
+/*
+ refactoring code to:
+    #include <stdio.h>
+    #include <CL/cl_platform.h>
+    #include <CL/cl.h>
+    #include <malloc.h>
+ */
 #include <iostream>
 #include <vector>
 #include <string>
 #include <cmath>
-#include "math.h"
-#include <CL/cl2.hpp>
 #include <csignal>
 #include <time.h>
 #include <unistd.h>
 #include <fstream>
-
+#include <CL/cl_platform.h>
+#include <CL/cl.h>
 #define NS_PER_SECOND 1000000000
 /*
  Вычислить методом последовательных приближений распределение значений температуры в
@@ -41,7 +44,6 @@ void sub_timespec(struct timespec t1, struct timespec t2, struct timespec *td)
         td->tv_sec++;
     }
 }
-
 
 class make_matrix_cpu {
 /*matrix example:
@@ -80,11 +82,6 @@ public:
         std::ofstream answer( filename.c_str() , std::ios_base::trunc);
         answer.setf(std::ios::fixed);
         answer.precision(precision);
-        answer << "TOP:" << endl;
-        for (int x = 0; x < this->m; x++) {
-            answer << this->matrix[0][x] << " ";
-        }
-        answer << "\nOTHER:" << endl;
         for (int y = 0; y < this->n; y++) {
             for (int x = 0; x < this->m; x++) {
                 answer << matrix[y][x] << " ";
@@ -181,7 +178,6 @@ public:
         }
     }
 };
-
 class make_matrix_gpu {
     int index(int x, int y) {
         return this->m * y + x;
@@ -210,14 +206,17 @@ public:
     //=================variables=================
 
     //=================GPU=================
-    std::vector<cl::Platform> platforms;
-    cl::Platform platform;
-    std::vector<cl::Device> devices;
-    cl::Device device;
-    cl::Context context;
-    cl::CommandQueue commandList;
+    cl_int clerr;
+    cl_platform_id* platforms;
+    cl_uint qty_platforms = 0;
+    cl_platform_id platform;
+    cl_uint *qty_devices;
+    cl_device_id ** devices;
+    cl_device_id device;
+    cl_context context;
+    cl_command_queue commandList;
     /*__global double* output, int m, int n, float step, double radius, int t3*/
-    std::string makeMatrix =   "__kernel void makeMatrix(__global double* output, int m, int n, float step, double radius, int t3) {"
+    char* makeMatrix =   "__kernel void makeMatrix(__global double* output, int m, int n, float step, double radius, int t3) {"
                                "    __private int x = get_global_id(0);\n"
                                "    __private int y = get_global_id(1);\n"
                                //"    output[m * y + x] = sqrt((float)y);"
@@ -232,8 +231,8 @@ public:
                                "        }"
                                "    }"
                                "}";
-    /*0__global double* input, 1__global float* output, 2__private int xpos, 3__private int ypos, 4int m, 5int n, 6double radius*/
-    std::string programRun =  " __kernel void collectNeighbors(__global double* input, __global double* output, int xpos, int ypos, int m, int n, double radius, __global double * testX, __global double * testY) {"
+    /*0__global double* input, 1__global float* output, 2__private int xpos, 3__private int ypos, 4int m, 5int n, 6double radius, __global 7double * testX, __global 8double * testY*/
+    char* programRun =  " __kernel void collectNeighbors(__global double* input, __global double* output, int xpos, int ypos, int m, int n, double radius, __global double * testX, __global double * testY) {"
                               " __private int x = get_global_id(0);"
                               " __private int y = get_global_id(1);"
                               //"barrier(CLK_GLOBAL_MEM_FENCE);"
@@ -255,9 +254,156 @@ public:
                               "}";
     vector<double> testX;
     vector<double> testY;
-    cl::Buffer testBuffX;
-    cl::Buffer testBuffY;
-    double valueGet(int x, int y) {
+    //cl::Buffer testBuffX;
+    //cl::Buffer testBuffY;
+    cl_program ReadyProgramRun;
+    cl_kernel ReadyKernelRun;
+    //cl::NDRange Readyoffset;
+    //cl::NDRange ReadylocalSize;
+    //cl::NDRange ReadyglobalSizeNDRange;
+    //=================GPU=================
+
+    const void checkError(int err, const std::string& message) {
+        if (err != CL_SUCCESS) {
+            std::cerr << message << ": " << errCodeToString(err) << " (" << err << ")" << std::endl;
+            exit(err);
+        }
+    }
+    char* errCodeToString(int err){
+        switch (err) {
+            case CL_SUCCESS:                            return "Success!";
+            case CL_DEVICE_NOT_FOUND:                   return "Device not found.";
+            case CL_DEVICE_NOT_AVAILABLE:               return "Device not available";
+            case CL_COMPILER_NOT_AVAILABLE:             return "Compiler not available";
+            case CL_MEM_OBJECT_ALLOCATION_FAILURE:      return "Memory object allocation failure";
+            case CL_OUT_OF_RESOURCES:                   return "Out of resources";
+            case CL_OUT_OF_HOST_MEMORY:                 return "Out of host memory";
+            case CL_PROFILING_INFO_NOT_AVAILABLE:       return "Profiling information not available";
+            case CL_MEM_COPY_OVERLAP:                   return "Memory copy overlap";
+            case CL_IMAGE_FORMAT_MISMATCH:              return "Image format mismatch";
+            case CL_IMAGE_FORMAT_NOT_SUPPORTED:         return "Image format not supported";
+            case CL_BUILD_PROGRAM_FAILURE:              return "Program build failure";
+            case CL_MAP_FAILURE:                        return "Map failure";
+            case CL_INVALID_VALUE:                      return "Invalid value";
+            case CL_INVALID_DEVICE_TYPE:                return "Invalid device type";
+            case CL_INVALID_PLATFORM:                   return "Invalid platform";
+            case CL_INVALID_DEVICE:                     return "Invalid device";
+            case CL_INVALID_CONTEXT:                    return "Invalid context";
+            case CL_INVALID_QUEUE_PROPERTIES:           return "Invalid queue properties";
+            case CL_INVALID_COMMAND_QUEUE:              return "Invalid command queue";
+            case CL_INVALID_HOST_PTR:                   return "Invalid host pointer";
+            case CL_INVALID_MEM_OBJECT:                 return "Invalid memory object";
+            case CL_INVALID_IMAGE_FORMAT_DESCRIPTOR:    return "Invalid image format descriptor";
+            case CL_INVALID_IMAGE_SIZE:                 return "Invalid image size";
+            case CL_INVALID_SAMPLER:                    return "Invalid sampler";
+            case CL_INVALID_BINARY:                     return "Invalid binary";
+            case CL_INVALID_BUILD_OPTIONS:              return "Invalid build options";
+            case CL_INVALID_PROGRAM:                    return "Invalid program";
+            case CL_INVALID_PROGRAM_EXECUTABLE:         return "Invalid program executable";
+            case CL_INVALID_KERNEL_NAME:                return "Invalid kernel name";
+            case CL_INVALID_KERNEL_DEFINITION:          return "Invalid kernel definition";
+            case CL_INVALID_KERNEL:                     return "Invalid kernel";
+            case CL_INVALID_ARG_INDEX:                  return "Invalid argument index";
+            case CL_INVALID_ARG_VALUE:                  return "Invalid argument value";
+            case CL_INVALID_ARG_SIZE:                   return "Invalid argument size";
+            case CL_INVALID_KERNEL_ARGS:                return "Invalid kernel arguments";
+            case CL_INVALID_WORK_DIMENSION:             return "Invalid work dimension";
+            case CL_INVALID_WORK_GROUP_SIZE:            return "Invalid work group size";
+            case CL_INVALID_WORK_ITEM_SIZE:             return "Invalid work item size";
+            case CL_INVALID_GLOBAL_OFFSET:              return "Invalid global offset";
+            case CL_INVALID_EVENT_WAIT_LIST:            return "Invalid event wait list";
+            case CL_INVALID_EVENT:                      return "Invalid event";
+            case CL_INVALID_OPERATION:                  return "Invalid operation";
+            case CL_INVALID_GL_OBJECT:                  return "Invalid OpenGL object";
+            case CL_INVALID_BUFFER_SIZE:                return "Invalid buffer size";
+            case CL_INVALID_MIP_LEVEL:                  return "Invalid mip-map level";
+            default: return "Unknown";
+        }
+    }
+    void init_gpu(int IDplatform = 0, int IDdevice = 0) {
+        clerr = CL_SUCCESS;
+        cl_uint ui;
+        this->koefX = this->m / 2;
+        this->koefY = this->n / 2;
+        this->testX = vector<double>(12, -1);
+        this->testY = vector<double>(12, -1);
+        this->matrix = vector<double>(this->n * this->m, 0);
+        clerr = clGetPlatformIDs(0, NULL, &qty_platforms);
+        platforms = (cl_platform_id*)malloc(sizeof(cl_platform_id)*qty_platforms);
+        devices = (cl_device_id**)malloc(sizeof(cl_device_id*)*qty_platforms);
+        qty_devices = (cl_uint*)malloc(sizeof(cl_uint)*qty_platforms);
+        checkError( clGetPlatformIDs(qty_platforms, platforms, NULL), "No platforms" );
+        for (ui=0; ui < qty_platforms; ui++){
+            checkError( clGetDeviceIDs(platforms[ui], CL_DEVICE_TYPE_ALL,0, NULL, &qty_devices[ui]), "No devices" );
+            if(qty_devices[ui]){
+                devices[ui] = (cl_device_id*)malloc(qty_devices[ui] * sizeof(cl_device_id));
+                checkError(clGetDeviceIDs(platforms[ui], CL_DEVICE_TYPE_ALL, qty_devices[ui], devices[ui], NULL), "Error bind device");
+            }
+        }
+        //init gpu program
+        this->context = clCreateContext(0, qty_devices[0], devices[0], NULL, NULL, &clerr);
+        this->commandList = clCreateCommandQueue(this->context, devices[0][0], CL_QUEUE_PROFILING_ENABLE, &clerr);
+        this->ReadyProgramRun = clCreateProgramWithSource(this->context, 1, (const char**)&(programRun), NULL, &clerr);
+        checkError(clBuildProgram(this->ReadyProgramRun, 0, NULL,  NULL /*clcompileflags*/, NULL, NULL), "Error compile");
+        size_t log_size;
+        checkError(clGetProgramBuildInfo(this->ReadyProgramRun, devices[0][0], CL_PROGRAM_BUILD_LOG, 0, NULL, NULL), "Error clGetProgramBuildInfo");
+        this->ReadyKernelRun = clCreateKernel(this->ReadyProgramRun, "collectNeighbors", &clerr);
+        checkError(clSetKernelArg(this->ReadyKernelRun, 4, sizeof ( int ), &( this->m)), "Error bind arg" );
+        checkError(clSetKernelArg(this->ReadyKernelRun, 5, sizeof ( int ), &( this->n)), "Error bind arg" );
+        checkError(clSetKernelArg(this->ReadyKernelRun, 6, sizeof ( double ), &( this->radius)), "Error bind arg" );
+    }
+    void make_gpu() {
+        float step = (float)(T / (n-1));
+        matrix[ index(this->m-1,0) ] = this->T;
+        for (int i = 1; i < this->n; i++) {
+            this->matrix [ index(this->m-1,i) ] = (double) (this->matrix[index(this->m-1,i-1)] - step);
+        }
+        cl_mem outputBuffer = clCreateBuffer(this->context, CL_MEM_WRITE_ONLY | CL_MEM_USE_HOST_PTR, this->matrix.size() * sizeof(double), this->matrix.data(), NULL );
+        vector<size_t> global = { (size_t)this->m, (size_t)this->n }; // ПОЗИЦИЯ ДОЛЖНА БЫТЬ РАВНА РАСЧЕТУ index!
+        cl_program program = clCreateProgramWithSource(this->context, 1, (const char**)&makeMatrix, NULL,  &clerr );
+        checkError(clBuildProgram(program, 0, NULL,  NULL /*clcompileflags*/, NULL, NULL), "Error compile make_gpu");
+        cl_kernel kernel = clCreateKernel(program, "makeMatrix", &clerr);
+
+        checkError(clSetKernelArg(kernel, 0, sizeof ( cl_mem ), &( outputBuffer )), "Error bind arg" );
+        checkError(clSetKernelArg(kernel, 1, sizeof ( int ), &( this->m )), "Error bind arg" );
+        checkError(clSetKernelArg(kernel, 2, sizeof ( int ), &( this->n )), "Error bind arg" );
+        checkError(clSetKernelArg(kernel, 3, sizeof ( float ), &( step )), "Error bind arg" );
+        checkError(clSetKernelArg(kernel, 4, sizeof ( double ), &( this->radius )), "Error bind arg" );
+        checkError(clSetKernelArg(kernel, 5, sizeof ( int ), &( this->t3 )), "Error bind arg" );
+        
+
+
+        /*float step = (float)(T / (n-1));
+        matrix[ index(this->m-1,0) ] = this->T;
+        for (int i = 1; i < this->n; i++) {
+            this->matrix [ index(this->m-1,i) ] = (double) (this->matrix[index(this->m-1,i-1)] - step);
+        }
+
+        cl::Buffer outputBuffer(this->context, CL_MEM_WRITE_ONLY | CL_MEM_USE_HOST_PTR, this->matrix.size() * sizeof(double), this->matrix.data());
+        vector<size_t> global = { (size_t)this->m, (size_t)this->n }; // ПОЗИЦИЯ ДОЛЖНА БЫТЬ РАВНА РАСЧЕТУ index!
+
+        // BUILD
+        cl::Program program(this->context, makeMatrix);
+        checkError(program.build({ this->device }, "-cl-std=CL2.0 -Werror -cl-fast-relaxed-math -cl-mad-enable"), "Ошибка сборки программы");
+
+        // ARGS
+        cl::Kernel kernel(program, "makeMatrix");
+        kernel.setArg(0, outputBuffer);
+        kernel.setArg(1, this->m);
+        kernel.setArg(2, this->n);
+        kernel.setArg(3, step);
+        kernel.setArg(4, this->radius);
+        kernel.setArg(5, this->t3);
+
+        // RUN
+        cl::NDRange offset(0, 0);
+        cl::NDRange localSize(1, 1);
+        cl::NDRange globalSizeNDRange(global[0], global[1]);
+        this->commandList.enqueueNDRangeKernel(kernel, offset, globalSizeNDRange, localSize);
+        this->commandList.enqueueReadBuffer(outputBuffer, CL_TRUE, 0, this->matrix.size() * sizeof(double), this->matrix.data());
+    */
+    }
+    /*double valueGet(int x, int y) {
         double temp = 0;
         this->ReadylocalSize = cl::NDRange(1, 1);
         this->ReadyglobalSizeNDRange = cl::NDRange((x > 0 ? 3 : 2), (y > 0 ? 3 : 2));
@@ -277,7 +423,7 @@ public:
         this->commandList.enqueueNDRangeKernel(ReadyKernelRun, cl::NullRange, this->ReadyglobalSizeNDRange, this->ReadylocalSize);
         this->commandList.enqueueReadBuffer(outputValue, CL_TRUE, 0, answer.size() * sizeof(double), answer.data());
         if(test)
-        this->commandList.enqueueReadBuffer(testBuffX, CL_TRUE, 0, testX.size() * sizeof(double), testX.data());
+            this->commandList.enqueueReadBuffer(testBuffX, CL_TRUE, 0, testX.size() * sizeof(double), testX.data());
         this->commandList.enqueueReadBuffer(testBuffY, CL_TRUE, 0, testY.size() * sizeof(double), testY.data());
         //this->commandList.finish();
         for(auto d : answer) {
@@ -302,115 +448,6 @@ public:
         return temp;
     }
 
-    cl::Program ReadyProgramRun;
-    cl::Kernel ReadyKernelRun;
-    cl::NDRange Readyoffset;
-    cl::NDRange ReadylocalSize;
-    cl::NDRange ReadyglobalSizeNDRange;
-    //=================GPU=================
-
-    static const void checkError(cl_int err, const std::string& message) {
-        if (err != CL_SUCCESS) {
-            std::cerr << "Ошибка: " << message << " (" << err << ")" << std::endl;
-            exit(err);
-        }
-    }
-    void init_gpu(int IDplatform = 0, int IDdevice = 0) {
-        this->koefX = this->m / 2;
-        this->koefY = this->n / 2;
-        this->testX = vector<double>(12, -1);
-        this->testY = vector<double>(12, -1);
-        this->matrix = vector<double>(this->n * this->m, 0);
-        cl::Platform::get(&(this->platforms));
-        checkError(this->platforms.size() > 0 ? CL_SUCCESS : -1, "No platforms");
-        this->platform = this->platforms[IDplatform];
-
-        platform.getDevices(CL_DEVICE_TYPE_ALL, &(this->devices));
-        checkError(this->devices.size() > 0 ? CL_SUCCESS : -1, "No devices");
-        this->device = this->devices[IDdevice];
-        this->context = cl::Context(this->device);
-        this->commandList = cl::CommandQueue(this->context, this->device);
-        //cl::Program::Sources sources(1, std::make_pair(programRun.c_str(), programRun.length() + 1));
-
-        //init gpu program
-        this->ReadyProgramRun = cl::Program(this->context, programRun);
-        cl_int err = this->ReadyProgramRun.build(this->device, "-cl-fast-relaxed-math -cl-mad-enable");
-        checkError(err, "Ошибка сборки программы"); //-cl-fast-relaxed-math -cl-mad-enable -cl-std=CL2.0
-        this->ReadyKernelRun = cl::Kernel(this->ReadyProgramRun, "collectNeighbors");
-        this->ReadyKernelRun.setArg(4, this->m);
-        this->ReadyKernelRun.setArg(5, this->n);
-        this->ReadyKernelRun.setArg(6, this->radius);
-    }
-    void make_gpu() {
-        float step = (float)(T / (n-1));
-        matrix[ index(this->m-1,0) ] = this->T;
-        for (int i = 1; i < this->n; i++) {
-            this->matrix [ index(this->m-1,i) ] = (double) (this->matrix[index(this->m-1,i-1)] - step);
-        }
-        cl::Buffer outputBuffer(this->context, CL_MEM_WRITE_ONLY | CL_MEM_USE_HOST_PTR, this->matrix.size() * sizeof(double), this->matrix.data());
-        vector<size_t> global = { (size_t)this->m, (size_t)this->n }; // ПОЗИЦИЯ ДОЛЖНА БЫТЬ РАВНА РАСЧЕТУ index!
-
-        // BUILD
-        cl::Program program(this->context, makeMatrix);
-        checkError(program.build(this->device, ""), "Ошибка сборки программы"); //-cl-std=CL2.0 -Werror -cl-fast-relaxed-math -cl-mad-enable
-
-        // ARGS
-        cl::Kernel kernel(program, "makeMatrix");
-        kernel.setArg(0, outputBuffer);
-        kernel.setArg(1, this->m);
-        kernel.setArg(2, this->n);
-        kernel.setArg(3, step);
-        kernel.setArg(4, this->radius);
-        kernel.setArg(5, this->t3);
-
-        // RUN
-        cl::NDRange offset(0, 0);
-        cl::NDRange localSize(1, 1);
-        cl::NDRange globalSizeNDRange(global[0], global[1]);
-        this->commandList.enqueueNDRangeKernel(kernel, offset, globalSizeNDRange, localSize);
-        this->commandList.enqueueReadBuffer(outputBuffer, CL_TRUE, 0, this->matrix.size() * sizeof(double), this->matrix.data());
-    }
-    void device_info() {
-        if(this->platforms.empty()) return;
-        int platform_id = 0;
-        int device_id = 0;
-        for(std::vector<cl::Platform>::iterator it = this->platforms.begin(); it != this->platforms.end(); ++it) {
-            cl::Platform platform(*it);
-
-            std::cout << "Platform ID: " << platform_id++ << std::endl;
-            std::cout << "Platform Name: " << platform.getInfo<CL_PLATFORM_NAME>() << std::endl;
-            std::cout << "Platform Vendor: " << platform.getInfo<CL_PLATFORM_VENDOR>() << std::endl;
-
-            std::vector<cl::Device> devices;
-            platform.getDevices(CL_DEVICE_TYPE_GPU | CL_DEVICE_TYPE_CPU, &devices);
-
-            for(std::vector<cl::Device>::iterator it2 = devices.begin(); it2 != devices.end(); ++it2) {
-                cl::Device device(*it2);
-                std::cout  << "\tDevice " << device_id++ << ": " << std::endl;
-                std::cout << "\t\tDevice Name: " << device.getInfo<CL_DEVICE_NAME>() << std::endl;
-                std::cout << "\t\tDevice Vendor: " << device.getInfo<CL_DEVICE_VENDOR>() << std::endl;
-                std::cout << "\t\tDevice Version: " << device.getInfo<CL_DEVICE_VERSION>() << std::endl;
-                switch (device.getInfo<CL_DEVICE_TYPE>()) {
-                    case 4:
-                        std::cout << "\t\tDevice Type: GPU" << std::endl;
-                        break;
-                    case 2:
-                        std::cout << "\t\tDevice Type: CPU" << std::endl;
-                        break;
-                    default:
-                        std::cout << "\t\tDevice Type: unknown" << std::endl;
-                }
-                std::cout << "\t\tDevice Max Compute Units: " << device.getInfo<CL_DEVICE_MAX_COMPUTE_UNITS>() << std::endl;
-                std::cout << "\t\tDevice Global Memory: " << device.getInfo<CL_DEVICE_GLOBAL_MEM_SIZE>() << " bytes" << std::endl;
-                std::cout << "\t\tDevice Max Clock Frequency: " << device.getInfo<CL_DEVICE_MAX_CLOCK_FREQUENCY>() << std::endl;
-                std::cout << "\t\tDevice Max Memory Allocation: " << device.getInfo<CL_DEVICE_MAX_MEM_ALLOC_SIZE>() << std::endl;
-                std::cout << "\t\tDevice Local Memory: " << device.getInfo<CL_DEVICE_LOCAL_MEM_SIZE>() << std::endl;
-                std::cout << "\t\tDevice Available: " << device.getInfo<CL_DEVICE_AVAILABLE>() << std::endl;
-            }
-            std::cout << std::endl;
-        }
-    }
-
     vector<double> get_top_matrix(vector<vector<double>> mat) {
         vector<double> out;
         for(auto d : mat[0]) {
@@ -428,16 +465,10 @@ public:
             cout << endl;
         }
     }
-
     void write_file(std::string filename = "output_gpu", int precision = 3 ) {
         std::ofstream answer( filename.c_str() , std::ios_base::trunc);
         answer.setf(std::ios::fixed);
         answer.precision(precision);
-        answer << "TOP:" << endl;
-        for (int x = 0; x < this->m; x++) {
-            answer << this->matrix[index(x, 0)] << " ";
-        }
-        answer << "\nOTHER:" << endl;
         for (int y = 0; y < this->n; y++) {
             for (int x = 0; x < this->m; x++) {
                 answer << this->matrix[index(x, y)] << " ";
@@ -457,7 +488,7 @@ public:
             for(int i = 0; i < this->n; i++) {
                 for (int j = 0; j < this->m; j++) {
                     if(this->radius < std::sqrt(std::pow(i - this->koefY, 2) +
-                                                        std::pow(j - this->koefX, 2))) {
+                                                std::pow(j - this->koefX, 2))) {
                         float newTemp = valueGet(j, i);
                         norm = std::abs(newTemp - this->matrix[index(j, i)]);
                         //cout << newTemp << " " << i << ":" << j << endl;
@@ -472,8 +503,9 @@ public:
             }
             count++;
         }
-    }
+    }*/
 };
+
 
 int main() {
     std::cout << "Hello, World!" << std::endl;
@@ -492,7 +524,7 @@ int main() {
     int precision = 3;
     bool show_gpu = false;
     //  INPUT
-    std::string yes;
+    /*std::string yes;
     cout << "Run test? (y/n): ";
     if (!getline(cin>>std::ws,yes,'\n')) return true;
     gpu_test = (yes == "y");
@@ -503,7 +535,7 @@ int main() {
     cout << "Enter temperature (T, t3): "; cin >> T >> t3;
     cout << "Enter alpha: "; cin >> alpha;
     cout << "Enter eps: "; cin >> eps;
-    cout << "Enter maximum of iterations: "; cin >> iter_count;
+    cout << "Enter maximum of iterations: "; cin >> iter_count;*/
 
     if(m%2 != 0 || n%2 != 0) {
         std::cerr << "WARNING: scary input (multiples of 2 are required)!" << endl;
@@ -517,32 +549,7 @@ int main() {
     matrix_gpu.alpha = alpha;
     matrix_gpu.test = gpu_test;
     matrix_gpu.init_gpu();
-    if(show_gpu) {
-        matrix_gpu.device_info();
-    }
     clock_gettime(CLOCK_REALTIME, &start);
     matrix_gpu.make_gpu();
-    //matrix_gpu.show_matrix(precision);
-    matrix_gpu.iteration(eps, iter_count);
-    clock_gettime(CLOCK_REALTIME, &finish);
-    sub_timespec(start, finish, &delta);
-    matrix_gpu.write_file();
-    cout << "Execute time = " << delta.tv_sec << "," << delta.tv_nsec << " took seconds\n\n";
 
-    cout << std::string(30,'=') << "CPU" << std::string(30,'=') << endl;
-    matrix_cpu.n = n; matrix_cpu.m = m;
-    matrix_cpu.T = T;
-    matrix_cpu.t3 = t3;
-    matrix_cpu.radius = radius;
-    matrix_cpu.alpha = alpha;
-    clock_gettime(CLOCK_REALTIME, &start);
-    matrix_cpu.make();
-    //matrix_cpu.show_matrix();
-    //cout << "---------" << endl;
-    matrix_cpu.iteration(eps, iter_count);
-    clock_gettime(CLOCK_REALTIME, &finish);
-    sub_timespec(start, finish, &delta);
-    matrix_cpu.write_file();
-    cout << "Execute time = " << delta.tv_sec << "," << delta.tv_nsec << " took seconds\n\n";
-    return 0;
 }

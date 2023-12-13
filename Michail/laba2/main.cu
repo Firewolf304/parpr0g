@@ -4,7 +4,9 @@
 #include <cuda_runtime.h>
 #include <vector>
 #include <stack>
-
+#include <thrust/host_vector.h>
+#include <thrust/device_vector.h>
+#include <cmath>
 /*
         Задание 17
  Найти количество всех различных последовательностей символов заданного размера в
@@ -22,12 +24,13 @@ using std::string;
 using std::cout;
 using std::cin;
 using std::endl;
-string str = "xyxxz";
+;
 //string str = "abcde";
 
-int n = 3, count = 0;
-
-int cycle_cpu(string piece, int a){
+int count = 0;
+std::vector<string> map_cpu;
+thrust::device_vector<string> map_gpu;
+/*int cycle_cpu(string piece, int a){
     string save = piece;
     for (int i = a + 1; i < str.length(); i++) {
         piece += str[i];
@@ -38,23 +41,24 @@ int cycle_cpu(string piece, int a){
         else cycle_cpu(piece, i);
         piece = save;
     }
-}
-void process_stack() {
+}*/
+void cycle_cpu(string str = "xyxxz", int n = 3) {
     std::vector<int> offset (n,0);
     std::vector<int> iter (n,0);
     int maxSIZE = str.length() - n;
     string line(n,' ');
     for(int i = 0; i < n; i++) {offset[i] = i; line[i] = str[i]; }
     int c = 0;
-    for(auto dd : iter ) {
-        cout << dd << " ";
+    map_cpu.push_back("");
+    for(int i = 0; i < n; i++ ) {
+        map_cpu.back() += str[offset[i] + iter[i]];
     }
-    cout << endl;
+    count++;
     while(c != n) {
         if(iter.back() + 1 <= maxSIZE) {
             iter.back()++;
         }
-        else {
+        else { // остальной участок просто разбить на потоки и длины так, чтобы каждый элемент двигался от 0 д maxSIZE
             for (int i = 0; i < n; i++) {
                 if (iter[i] >= maxSIZE) {
                     if(iter[i - 1] + 1 <= maxSIZE) {
@@ -69,27 +73,58 @@ void process_stack() {
                 }
             }
         }
-        for(auto dd : iter ) {
-            cout << dd << " ";
+        map_cpu.push_back("");
+        for(int i = 0; i < n; i++ ) {
+            map_cpu.back() += str[offset[i] + iter[i]];
         }
-        cout << endl;
         c = 0;
         for(auto d : iter) {
             if(d == maxSIZE) {
                 c++;
             }
         }
-
+        count++;
     }
 }
-__global__ void cycle_gpu(string piece, int a) {
 
+__device__ void get_values(int stepen, int n, int str_size) {
+
+    /*int value = 2;
+    int schet = 1;
+    thrust::device_vector<int> & H;
+    H.push_back()
+    while(value) {
+        output += schet * (value % stepen);
+        value /= stepen;
+        schet *= 10;
+    }*/
 }
+__global__ void kernel(thrust::device_ptr<int> count, int str_size, int sub_size) {
+    //get_values()
+    printf("HELLO\n");
+}
+void cycle_gpu(string str = "xyxxz", int n = 3) {
+    int count = 0;
+    thrust::device_ptr<int> ptr = thrust::device_pointer_cast<int>(&count);
+    cudaMemcpy(ptr.get(), &count, sizeof(count), cudaMemcpyHostToDevice);
+    kernel  <<<
+        dim3(1,1,1),
+        dim3(pow(n - str.length(), n),1, 1 )
+    >>>( ptr , str.length(), n);
+    //cudaMemcpy(ptr, thrust::raw_pointer_cast(map_gpu.data()), map_gpu.size() * sizeof(string), cudaMemcpyHostToDevice);
+    cudaMemcpy(&count, ptr.get(), sizeof(count), cudaMemcpyDeviceToHost);
+    cudaFree(ptr.get());
+    cudaDeviceSynchronize();
+}
+
 
 int main() {
     string piece = "";
-    cycle_cpu("",-1);
-    process_stack();
+    //cycle_cpu("",-1);
+    cycle_gpu();
+    for(auto d : map_cpu) {
+        cout << d << endl;
+    }
     /*for(int i = 0; i <= str.length() - n; i ++){
         piece = str[i];
         if (piece.length() >= n && int(piece[piece.length() - 1]) != 0){

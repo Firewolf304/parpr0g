@@ -1,5 +1,5 @@
 //#define CL_USE_DEPRECATED_OPENCL_1_2_APIS
-#define CL_TARGET_OPENCL_VERSION 300
+#define CL_TARGET_OPENCL_VERSION 120
 
 #include <iostream>
 #include <vector>
@@ -277,7 +277,7 @@ public:
         this->commandList.enqueueNDRangeKernel(ReadyKernelRun, cl::NullRange, this->ReadyglobalSizeNDRange, this->ReadylocalSize);
         this->commandList.enqueueReadBuffer(outputValue, CL_TRUE, 0, answer.size() * sizeof(double), answer.data());
         if(test)
-        this->commandList.enqueueReadBuffer(testBuffX, CL_TRUE, 0, testX.size() * sizeof(double), testX.data());
+            this->commandList.enqueueReadBuffer(testBuffX, CL_TRUE, 0, testX.size() * sizeof(double), testX.data());
         this->commandList.enqueueReadBuffer(testBuffY, CL_TRUE, 0, testY.size() * sizeof(double), testY.data());
         //this->commandList.finish();
         for(auto d : answer) {
@@ -457,7 +457,7 @@ public:
             for(int i = 0; i < this->n; i++) {
                 for (int j = 0; j < this->m; j++) {
                     if(this->radius < std::sqrt(std::pow(i - this->koefY, 2) +
-                                                        std::pow(j - this->koefX, 2))) {
+                                                std::pow(j - this->koefX, 2))) {
                         float newTemp = valueGet(j, i);
                         norm = std::abs(newTemp - this->matrix[index(j, i)]);
                         //cout << newTemp << " " << i << ":" << j << endl;

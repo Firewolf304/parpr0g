@@ -123,7 +123,7 @@ CMAKE_PROJECT_DESCRIPTION:STATIC=
 CMAKE_PROJECT_HOMEPAGE_URL:STATIC=
 
 //Value Computed by CMake
-CMAKE_PROJECT_NAME:STATIC=laba2
+CMAKE_PROJECT_NAME:STATIC=prod
 
 //Path to a program.
 CMAKE_RANLIB:FILEPATH=/usr/bin/ranlib
@@ -198,6 +198,15 @@ laba2_IS_TOP_LEVEL:STATIC=ON
 
 //Value Computed by CMake
 laba2_SOURCE_DIR:STATIC=/home/firewolf304/CLionProjects/parprog/Michail/laba2
+
+//Value Computed by CMake
+prod_BINARY_DIR:STATIC=/home/firewolf304/CLionProjects/parprog/Michail/laba2/cmake-build-debug
+
+//Value Computed by CMake
+prod_IS_TOP_LEVEL:STATIC=ON
+
+//Value Computed by CMake
+prod_SOURCE_DIR:STATIC=/home/firewolf304/CLionProjects/parprog/Michail/laba2
 
 
 ########################

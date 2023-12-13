@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.27)
-project(laba2 CUDA)
+project(prod CUDA)
 
 set(CMAKE_CUDA_STANDARD 11)
 

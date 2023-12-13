@@ -5,5 +5,5 @@ sudo pacman -S opencl-clhpp
 
 ## Run
 ```zsh
-gcc --std=c++11 main.cpp -o main -lOpenCL
+g++ -std=c++11 -Wall -lOpenCL main.cpp -o out.o
 ```

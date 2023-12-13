@@ -17,7 +17,7 @@ using std::vector;
 using std::cout;
 using std::cin;
 using std::endl;
-class make_matrix {
+class make_matrix_cpu {
 /*matrix example:
  n
  --------------
@@ -27,16 +27,7 @@ class make_matrix {
  0 x x x (T-3)|
  0 0 0 0 0    |  m*/
 public:
-    void clear_matrix() {
-        this->matrix.clear();
-        this->matrix.push_back({});
-        for(int y = 0 ; y < this->n; y++ ) {
-            for(int x = 0; x < this->m; x++) {
-                this->matrix[y].push_back(0);
-            }
-            this->matrix.push_back({});
-        }
-    }
+
     vector<vector<double>> matrix;
     int n = 3;      // like y
     int m = 3;      // like x
@@ -46,12 +37,18 @@ public:
     double alpha = 0.05351f; // коэф распределения (лучше коэф газа Sulfur dioxide)
     void show_matrix(int accuracy = 3) {
         cout.setf(std::ios::fixed); cout.precision(accuracy);
-        for(auto y : this->matrix) {
+        for(int ypos = 0; ypos < this->matrix.size(); ypos++) {
+            for(int xpos = 0; xpos < this->matrix[ypos].size(); xpos++) {
+                cout << matrix[ypos][xpos] << " ";
+            }
+            cout << endl;
+        }
+        /*for(auto y : this->matrix) {
             for(auto x : y) {
                 cout << x << " ";
             }
             cout << endl;
-        }
+        }*/
     }
     void show_matrix(vector<vector<double>> mat, int accuracy = 3) {
         cout.setf(std::ios::fixed); cout.precision(accuracy);
@@ -88,7 +85,7 @@ public:
     }
     void make() {
         float step = (float)(T / (n-1));
-        this->matrix = vector<vector<double>>(this->m, vector<double>(this->n, 0));
+        this->matrix = vector<vector<double>>(this->n, vector<double>(this->m, 0));
         matrix[0][m-1] = this->T;
 
         for(int y = 0 ; y < this->n; y++ ) {
@@ -118,18 +115,18 @@ public:
             for(int i = 0; i < this->n; i++) {
                 for (int j = 0; j < this->m; j++) {
 
-                        double oldTemp = this->matrix[i][j];
-                        double newTemp = 0.0f;
-                        for (int y1 = ((j > 0) ? j - 1 : j); y1 <= j + 1 && y1 < this->m; y1++) {
-                            for (int x1 = ((i > 0) ? i - 1 : i); x1 <= i + 1 && x1 < this->n; x1++) {
-                                if(this->radius < (double) std::sqrt(std::pow(i - (double) (this->n / 2), 2) +
-                                                                     std::pow(j - (float) (this->m / 2),2))) {
-                                    newTemp += this->matrix[y1][x1];
-                                }
+                    double oldTemp = this->matrix[i][j];
+                    double newTemp = 0.0f;
+                    for (int y1 = ((i > 0) ? i - 1 : i); y1 <= i + 1 && y1 < this->n; y1++) {
+                        for (int x1 = ((j > 0) ? j - 1 : j); x1 <= j + 1 && x1 < this->m; x1++) {
+                            if(this->radius < (float) std::sqrt(std::pow(i - (float)(this->n / 2), 2) +
+                                                                std::pow(j - (float)(this->m / 2), 2))) {
+                                newTemp += this->matrix[y1][x1];
                             }
                         }
-                        this->matrix[i][j] = newTemp * this->alpha;
-                        norm = std::abs(newTemp - oldTemp);
+                    }
+                    this->matrix[i][j] = newTemp * this->alpha;
+                    norm = std::abs(newTemp - oldTemp);
 
                 }
             }
@@ -140,7 +137,7 @@ public:
 
 int main() {
     std::cout << "Hello, World!" << std::endl;
-    make_matrix matrix;
+    make_matrix_cpu matrix;
     matrix.n = 9; matrix.m = 9;
     matrix.T = 100;
     matrix.t3 = 100;
@@ -149,8 +146,8 @@ int main() {
 
     matrix.make();
     matrix.show_matrix();
-
-    matrix.iteration(0.01f, 100);
+    cout << "---------" << endl;
+    matrix.iteration(0.01f, 1);
     matrix.show_matrix();
     return 0;
 }
