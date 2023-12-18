@@ -21,10 +21,9 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="06da50c2-645a-4096-a62f-bab70471a83f" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/../Michail/laba2/cmake-build-debug/Testing/Temporary/LastTest.log" beforeDir="false" afterPath="$PROJECT_DIR$/../Michail/laba2/cmake-build-debug/Testing/Temporary/LastTest.log" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out.o" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/output_cpu" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/output_gpu" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/cmake-build-debug/Testing/Temporary/LastTest.log" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/Testing/Temporary/LastTest.log" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -76,11 +75,6 @@
   }
 }</component>
   <component name="RunManager">
-    <configuration default="true" type="CLionExternalRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true">
-      <method v="2">
-        <option name="CLION.EXTERNAL.BUILD" enabled="true" />
-      </method>
-    </configuration>
     <configuration name="laba4" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="laba4" TARGET_NAME="laba4" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="laba4" RUN_TARGET_NAME="laba4">
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
@@ -101,6 +95,8 @@
       <workItem from="1702318976401" duration="4514000" />
       <workItem from="1702328759401" duration="13151000" />
       <workItem from="1702468489189" duration="15868000" />
+      <workItem from="1702801788768" duration="2355000" />
+      <workItem from="1702876571104" duration="1294000" />
     </task>
     <servers />
   </component>
