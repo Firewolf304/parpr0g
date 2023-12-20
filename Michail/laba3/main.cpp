@@ -41,23 +41,23 @@ void sieve_of_Eratosthenes(int n){
 //22.Найти числа a>b>c, большие заданного числа A,
 //имеющие одинаковые количества различных простых делителей такие, что a-b=b-c.
 
-    int A = 2000;
+    int A = 1300;
     A += (A%2 == 0);
-    cout << "A=" << A << endl;
     int C = A + 1;
     int B;
     int i = 0;
     int countA = 0, countC = 0, countB = 0;
+    int N = 5;
     while(1){
         B = (A + C) / 2;
         while(primal[i] * 2 < (B)){
-            if (A % primal[i] == 0 && C % primal[i] == 0 && (B) % primal[i] == 0)
+            if (A % primal[i] == 0 && B % primal[i] == 0 || C % primal[i] == 0 && B % primal[i] == 0 || C % primal[i] == 0 && A % primal[i] == 0)
                 break;
             countA += (A % primal[i]) == 0; countC += (C % primal[i]) == 0; countB += ((B) % primal[i]) == 0;
             i++;
         }
-        if (countA == countC && countA == countB && countA != 0 && countB !=0 && countC != 0){
-            cout <<"A = "<< A << "; B = " << B << "; C = " << C;
+        if (countA == countC and countA == countB and countA != 0 && B != A && B != C && A-B==B-C){
+            cout << "A = "<< A << "; B = " << B << "; C = " << C << endl;
             break;
         }
 
@@ -66,16 +66,28 @@ void sieve_of_Eratosthenes(int n){
         A += 2 * (C % 1000 == 0);
         C += 1 + (A - C) * (C % 1000 == 0); //Оптимизация ифа сверху
     }
-    cout<<endl << A <<" ";
-    for(int j = 0; primal[j] < (A/2); j++){
-        if ((A % primal[j]) == 0) cout << primal[j]<<" ";}
-    cout<<endl << (B) <<" ";
-    for(int j = 0; primal[j] < ((B)/2); j++){
-        if (((B) % primal[j]) == 0) cout << primal[j]<<" ";}
-    cout<<endl << C <<" ";
-    for(int j = 0; primal[j] < (C/2); j++){
-        if ((C % primal[j]) == 0) cout << primal[j]<<" ";
+    cout<<"Count div = "<<countA<<endl; //Изменения от сюда(68-89) строка
+    cout<< A <<" ";
+    int j = 0, count = 0;
+    while (j < countA){
+        if ((A % primal[count]) == 0) {cout << primal[count]<<" ";
+            j++;}
+        count++;
     }
+    j = 0, count = 0;
+    cout<<endl << (B) <<" ";
+    while (j < countA){
+        if ((B % primal[count]) == 0) {cout << primal[count]<<" ";
+            j++;}
+        count++;
+    }
+    j = 0, count = 0;
+    cout<<endl << C <<" ";
+    while (j < countA){
+        if ((C % primal[count]) == 0) {cout << primal[count]<<" ";
+            j++;}
+        count++;
+    } //и до сюда
 
 }
 char* errCodeToString(int err){
@@ -148,9 +160,38 @@ void sieve_of_Eratosthenes_gpu(int n){
     cl_device_id * ds; // devices
     cl_program p;
     cl_kernel k;
-    const char * kernel = "__kernel void kernelfunc(__global double* input, __global double* output) {"
-                         ""
-                         "}";
+    const char * kernel = "__kernel void kernelfunc(__global int* Aout, __global int* primal, __global int* countAout,  __global int* Bout, __global int* Cout, __global int* min, __global int* offset) {"
+                          "int A = get_global_id(0) + *offset;\n"
+                          "int C = A + 1;\n"
+                          "int B;\n"
+                          "int i = 0;\n"
+                          "int countA = 0, countC = 0, countB = 0;\n"
+                          "int flag = 0;"
+                          "for (C = A+1; C < A - (A % 1000) + 1000; C++){\n"
+                          "            B = (A + C) / 2;\n"
+                          "            while(primal[i] * 2 <= (C)){"
+                          "                if (A % primal[i] == 0 && B % primal[i] == 0 || C % primal[i] == 0 && B % primal[i] == 0 || C % primal[i] == 0 && A % primal[i] == 0)\n"
+                          "                    break;\n"
+                          "                countA += (A % primal[i]) == 0; countC += (C % primal[i]) == 0; countB += ((B) % primal[i]) == 0;\n"
+                          "                i++;\n"
+                          "            }\n"
+                          "            i = 0;\n"
+                          "            if (countA == countC && countA == countB && countA != 0 && B != A && B != C && A-B==B-C){\n"
+                          "                flag = 1;"
+                          "                break;\n"
+                          "            }\n"
+                          "            countA = 0, countC = 0, countB = 0;\n"
+                          "\n"
+                          "} "
+                          "if(flag) {"
+                          "Aout[get_global_id(0)] = A; "
+                          "Bout[get_global_id(0)] = countA; "
+                          "Cout[get_global_id(0)] = C;"
+                          "*countAout = countA;"
+                          ""
+                          "}"
+                          //"Aout[0] = 9999;"
+                          "}";
 
     // INIT GPU
     checkError(clGetPlatformIDs(0, NULL, &qty_platforms), "Error get platforms");
@@ -195,7 +236,8 @@ void sieve_of_Eratosthenes_gpu(int n){
     for(int i = 3; i < n; i += 2){ //Считаем кол-во простых чисел для инициализации массива простых чисел
         countPrimal += (numbers[i] != 0);}
 
-    int primal[countPrimal+1];
+    //int primal[countPrimal+1];
+    int * primal = new int[countPrimal+1];
     countPrimal = 0;
     primal[countPrimal++] = 2;
 
@@ -212,42 +254,103 @@ void sieve_of_Eratosthenes_gpu(int n){
 
     int A = 1300;
     A += (A%2 == 0);
-    int C = A + 1;
-    int B;
-    int i = 0;
+    int B = 0;
     int countA = 0, countC = 0, countB = 0;
-    while(1){
-        B = (A + C) / 2;
-        while(primal[i] * 2 < (B)){
-            if (A % primal[i] == 0 && C % primal[i] == 0 && (B) % primal[i] == 0)
-                break;
-            countA += (A % primal[i]) == 0; countC += (C % primal[i]) == 0; countB += ((B) % primal[i]) == 0;
-            i++;
-        }
-        if (countA == countC && countA == countB && countA != 0){
-            cout <<"A = "<< A << "; B = " << B << "; C = " << C;
+    int C = 0;
+
+    //vector<int> valuesA(1000, 0);
+    //vector<int> valuesB(1000, 0);
+    //vector<int> valuesC(1000, 0);
+    int * valuesA = (int*)calloc( 1000, sizeof(int));
+    int * valuesB = (int*)calloc( 1000, sizeof(int));
+    int * valuesC = (int*)calloc( 1000, sizeof(int));
+    /*cl_mem Ainp = clCreateBuffer (cntx , CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR ,
+        sizeof ( A ), &A , NULL );
+    cl_mem Binp = clCreateBuffer (cntx , CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR ,
+        sizeof ( B ), &B , NULL );
+    cl_mem Cinp = clCreateBuffer (cntx , CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR ,
+        sizeof ( C ), &C , NULL );*/
+    cl_mem Ainp = clCreateBuffer (cntx , CL_MEM_WRITE_ONLY | CL_MEM_COPY_HOST_PTR ,
+                                  1000 * sizeof ( int ), valuesA , NULL );
+    cl_mem Binp = clCreateBuffer (cntx , CL_MEM_WRITE_ONLY | CL_MEM_COPY_HOST_PTR ,
+                                  1000 * sizeof ( int ), valuesB , NULL );
+    cl_mem Cinp = clCreateBuffer (cntx , CL_MEM_WRITE_ONLY | CL_MEM_COPY_HOST_PTR ,
+                                  1000 * sizeof ( int ), valuesC , NULL );
+    cl_mem primaleInp = clCreateBuffer (cntx , CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR ,
+                                        (countPrimal + 1) * sizeof(int), primal , &clerr );
+    checkError(clerr, "Invalid input");
+    cl_mem countAinp = clCreateBuffer (cntx , CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR ,
+                                  sizeof ( int ), &countA , NULL );
+    int min = 999999;
+    cl_mem minn = clCreateBuffer (cntx , CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR ,
+                                       sizeof ( int ), &min , NULL );
+    cl_mem offset = clCreateBuffer (cntx , CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR ,
+                                    sizeof ( int ), &A , NULL );
+
+    //__global int* Aout, __local int* primal, __global int* countAout, __global int* Bout, __global int* Cout
+    checkError(clSetKernelArg (k, 0, sizeof ( cl_mem ), &Ainp), "Invalid arg");
+    checkError(clSetKernelArg (k, 1, sizeof ( cl_mem ), &primaleInp), "Invalid arg");
+    checkError(clSetKernelArg (k, 2, sizeof ( cl_mem ), &countAinp), "Invalid arg");
+    checkError(clSetKernelArg (k, 3, sizeof ( cl_mem ), &Binp), "Invalid arg");
+    checkError(clSetKernelArg (k, 4, sizeof ( cl_mem ), &Cinp), "Invalid arg");
+    checkError(clSetKernelArg (k, 5, sizeof ( cl_mem ), &minn), "Invalid arg");
+    checkError(clSetKernelArg (k, 6, sizeof ( cl_mem ), &offset), "Invalid arg");
+
+    kEvent = clCreateUserEvent(cntx, &clerr);
+    size_t global_work_size [1] = {1000};
+    //size_t offset [1] = {static_cast<size_t>(A)};
+
+    checkError(clEnqueueNDRangeKernel (cq, k, 1, NULL, global_work_size , NULL /*local_work_size*/ , 0, NULL , &kEvent ), "Error start");
+
+    checkError(clEnqueueReadBuffer (cq , Ainp, CL_TRUE , 0,	 1000 * sizeof ( int ), valuesA , 0, NULL , NULL ), "error get value");
+    checkError(clEnqueueReadBuffer (cq , Binp, CL_TRUE , 0,	 1000 * sizeof ( int ), valuesB , 0, NULL , NULL ), "error get value");
+    checkError(clEnqueueReadBuffer (cq , Cinp, CL_TRUE , 0,	 1000 * sizeof ( int ), valuesC , 0, NULL , NULL ), "error get value");
+    checkError(clEnqueueReadBuffer (cq , countAinp, CL_TRUE , 0,	 sizeof ( countA ), &countA , 0, NULL , NULL ), "error get value");
+    cout <<"A = "<< A << "; B = " << B << "; C = " << C << "; test=" << valuesA[0] <<endl;
+    cout <<"A = "<< A << "; B = " << B << "; C = " << C<<endl;
+    clReleaseMemObject(Ainp);
+    clReleaseMemObject(Binp);
+    clReleaseMemObject(Cinp);
+    clReleaseMemObject(countAinp);
+    clReleaseKernel (k);
+    clReleaseProgram (p);
+    clReleaseCommandQueue (cq );
+    clReleaseContext (cntx );
+    int index = 0;
+    for(; index < 1000; index++) {
+        if(valuesA[index] != 0) {
             break;
         }
-
-        i = 0;
-        countA = 0, countC = 0, countB = 0;
-        A += 2 * (C % 1000 == 0);
-        C += 1 + (A - C) * (C % 1000 == 0); //Оптимизация ифа сверху
     }
-    cout<<endl << A <<" ";
-    for(int j = 0; primal[j] < (A/2); j++){
-        if ((A % primal[j]) == 0) cout << primal[j]<<" ";}
+    A = valuesA[index]; countA = valuesB[index]; C = valuesC[index];
+    B = (A+C)/2;
+    cout<<"Count div = "<<countA<<endl; //Изменения от сюда(68-89) строка
+    cout<< A <<" ";
+    int j = 0, count = 0;
+    while (j < countA && count < countPrimal){
+        if ((A % primal[count]) == 0) {cout << primal[count]<<" ";
+            j++;}
+        count++;
+    }
+    j = 0, count = 0;
     cout<<endl << (B) <<" ";
-    for(int j = 0; primal[j] < ((B)/2); j++){
-        if (((B) % primal[j]) == 0) cout << primal[j]<<" ";}
-    cout<<endl << C <<" ";
-    for(int j = 0; primal[j] < (C/2); j++){
-        if ((C % primal[j]) == 0) cout << primal[j]<<" ";
+    while (j < countA){
+        if ((B % primal[count]) == 0) {cout << primal[count]<<" ";
+            j++;}
+        count++;
     }
+    j = 0, count = 0;
+    cout<<endl << C <<" ";
+    while (j < countA){
+        if ((C % primal[count]) == 0) {cout << primal[count]<<" ";
+            j++;}
+        count++;
+    } //и до сюда
+    cout<<endl;
 
 }
 
 int main() {
-    sieve_of_Eratosthenes_gpu(100000);
-
+    sieve_of_Eratosthenes_gpu(10000);
+    sieve_of_Eratosthenes(10000);
 }
