@@ -1,8 +1,8 @@
 #include <iostream>
 #include <vector>
 #include <cmath>
+#include <mpi.h>
 
-// Функция для проверки, является ли число простым
 bool isPrime(int num) {
     if (num < 2) {
         return false;
@@ -49,7 +49,7 @@ int findMaxNumber(int N) {
 }
 
 int main() {
-    int N = 28; // Замените N на ваше значение
+    int N = 33; // Замените N на ваше значение
     int result = findMaxNumber(N);
 
     std::cout << "Максимальное число, меньшее " << N

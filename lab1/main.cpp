@@ -260,8 +260,7 @@ int main() {
     a.clear();
     b.clear();
     std::ofstream answerlinel("answerlinel.txt", std::ios_base::trunc);
-    std::ofstream answerparallel("answerparallel.txt", std::ios_base::trunc);
-    //std::cout << "ANSWER:\nlinel" << std::endl;
+    std::ofstream answerparallel("answerparallel.txt", std::ios_base::trunc);z
     int count=outomp.size();
     for(int i = 0; i < outomp.size(); i++) {
         answerlinel << out[i] << "\n";
