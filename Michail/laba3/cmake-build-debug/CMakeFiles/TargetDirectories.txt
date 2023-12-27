@@ -1,3 +1,0 @@
-/home/firewolf304/CLionProjects/parprog/Michail/laba3/cmake-build-debug/CMakeFiles/laba3.dir
-/home/firewolf304/CLionProjects/parprog/Michail/laba3/cmake-build-debug/CMakeFiles/edit_cache.dir
-/home/firewolf304/CLionProjects/parprog/Michail/laba3/cmake-build-debug/CMakeFiles/rebuild_cache.dir
