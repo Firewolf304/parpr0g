@@ -1,0 +1,297 @@
+<mxfile host="app.diagrams.net" modified="2023-12-21T18:25:05.423Z" agent="Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0.0.0 Safari/537.36" etag="EUAmAzhp27wcZ5kLB6Su" version="22.1.11" type="device">
+  <diagram name="Страница — 1" id="Oai7IsJk5GyZaycMPBIn">
+    <mxGraphModel dx="1935" dy="1728" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="No6HvaesxhGuNCHEIPea-1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;strokeWidth=3;" edge="1" parent="1" source="No6HvaesxhGuNCHEIPea-2" target="No6HvaesxhGuNCHEIPea-18">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="No6HvaesxhGuNCHEIPea-2" value="Начало" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="370.75" y="-140" width="96" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="No6HvaesxhGuNCHEIPea-3" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;strokeWidth=3;" edge="1" parent="1" source="No6HvaesxhGuNCHEIPea-4" target="No6HvaesxhGuNCHEIPea-9">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="No6HvaesxhGuNCHEIPea-4" value="&lt;div&gt;float norm = 1;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;background-color: initial;&quot;&gt;int count = 0;&lt;/span&gt;&lt;/div&gt;" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="366.25" y="130" width="106" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="No6HvaesxhGuNCHEIPea-5" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;strokeWidth=3;" edge="1" parent="1" source="No6HvaesxhGuNCHEIPea-9" target="No6HvaesxhGuNCHEIPea-16">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="No6HvaesxhGuNCHEIPea-6" value="&lt;font style=&quot;font-size: 15px;&quot;&gt;Да&lt;/font&gt;" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="No6HvaesxhGuNCHEIPea-5">
+          <mxGeometry x="-0.15" relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="No6HvaesxhGuNCHEIPea-7" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;strokeWidth=3;" edge="1" parent="1" source="No6HvaesxhGuNCHEIPea-9" target="No6HvaesxhGuNCHEIPea-71">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="No6HvaesxhGuNCHEIPea-8" value="&lt;font style=&quot;font-size: 15px;&quot;&gt;Нет&lt;/font&gt;" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="No6HvaesxhGuNCHEIPea-7">
+          <mxGeometry x="-0.0702" relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="No6HvaesxhGuNCHEIPea-9" value="norm &amp;gt; eps &amp;amp;&amp;amp; count &amp;lt; maxIteration" style="rhombus;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="289.76" y="190" width="256" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="No6HvaesxhGuNCHEIPea-10" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;strokeWidth=3;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="No6HvaesxhGuNCHEIPea-14" target="No6HvaesxhGuNCHEIPea-146">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="480" y="510" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="No6HvaesxhGuNCHEIPea-11" value="&lt;font style=&quot;font-size: 15px;&quot;&gt;Да&lt;/font&gt;" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="No6HvaesxhGuNCHEIPea-10">
+          <mxGeometry x="-0.1153" y="1" relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="No6HvaesxhGuNCHEIPea-12" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeWidth=3;" edge="1" parent="1" source="No6HvaesxhGuNCHEIPea-14" target="No6HvaesxhGuNCHEIPea-68">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="-120" y="377" />
+              <mxPoint x="-120" y="2166" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="No6HvaesxhGuNCHEIPea-13" value="&lt;font style=&quot;font-size: 15px;&quot;&gt;Нет&lt;/font&gt;" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="No6HvaesxhGuNCHEIPea-12">
+          <mxGeometry x="-0.9744" y="-2" relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="No6HvaesxhGuNCHEIPea-14" value="i &amp;lt; x" style="rhombus;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="372.75" y="350" width="90" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="No6HvaesxhGuNCHEIPea-15" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;strokeWidth=3;" edge="1" parent="1" source="No6HvaesxhGuNCHEIPea-16" target="No6HvaesxhGuNCHEIPea-14">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="No6HvaesxhGuNCHEIPea-16" value="int i =0;" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="359.76" y="290" width="116" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="No6HvaesxhGuNCHEIPea-17" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;strokeWidth=3;" edge="1" parent="1" source="No6HvaesxhGuNCHEIPea-18" target="No6HvaesxhGuNCHEIPea-70">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="No6HvaesxhGuNCHEIPea-18" value="Ввод:&lt;br&gt;&lt;div style=&quot;border-color: var(--border-color);&quot;&gt;int x=2,y=2,z=2, radius = 2;&lt;/div&gt;&lt;div style=&quot;border-color: var(--border-color);&quot;&gt;&amp;nbsp; &amp;nbsp; &amp;nbsp; &amp;nbsp; float T1 = 20.0f;&lt;/div&gt;&lt;div style=&quot;border-color: var(--border-color);&quot;&gt;&amp;nbsp; &amp;nbsp; &amp;nbsp; &amp;nbsp; float T2 = 10.0f;ъ&lt;/div&gt;&lt;div style=&quot;border-color: var(--border-color);&quot;&gt;&amp;nbsp; &amp;nbsp; &amp;nbsp; &amp;nbsp; float T_bottom = 0.0f;&lt;/div&gt;&lt;div style=&quot;border-color: var(--border-color);&quot;&gt;&amp;nbsp; &amp;nbsp; &amp;nbsp; &amp;nbsp; float alpha = 0.05351f;&lt;/div&gt;&lt;div style=&quot;border-color: var(--border-color);&quot;&gt;vector&amp;lt; vector &amp;lt; vector&amp;lt; float &amp;gt; &amp;gt; &amp;gt; matrix;&lt;br&gt;&lt;/div&gt;" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="213.25" y="-70" width="409" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="No6HvaesxhGuNCHEIPea-19" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;strokeWidth=3;" edge="1" parent="1" source="No6HvaesxhGuNCHEIPea-23" target="No6HvaesxhGuNCHEIPea-148">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="No6HvaesxhGuNCHEIPea-20" value="&lt;font style=&quot;font-size: 15px;&quot;&gt;Да&lt;/font&gt;" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="No6HvaesxhGuNCHEIPea-19">
+          <mxGeometry x="-0.3239" y="-1" relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="No6HvaesxhGuNCHEIPea-21" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeWidth=3;" edge="1" parent="1" source="No6HvaesxhGuNCHEIPea-23" target="No6HvaesxhGuNCHEIPea-66">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="-80" y="553" />
+              <mxPoint x="-80" y="2106" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="No6HvaesxhGuNCHEIPea-22" value="&lt;font style=&quot;font-size: 15px;&quot;&gt;Нет&lt;/font&gt;" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="No6HvaesxhGuNCHEIPea-21">
+          <mxGeometry x="-0.9637" y="-1" relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="No6HvaesxhGuNCHEIPea-23" value="j &amp;lt; y" style="rhombus;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="373.25" y="529.5" width="89" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="No6HvaesxhGuNCHEIPea-24" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;strokeWidth=3;" edge="1" parent="1" source="No6HvaesxhGuNCHEIPea-28" target="No6HvaesxhGuNCHEIPea-30">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="No6HvaesxhGuNCHEIPea-25" value="&lt;font style=&quot;font-size: 15px;&quot;&gt;Да&lt;/font&gt;" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="No6HvaesxhGuNCHEIPea-24">
+          <mxGeometry x="-0.3481" y="1" relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="No6HvaesxhGuNCHEIPea-26" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeWidth=3;" edge="1" parent="1" source="No6HvaesxhGuNCHEIPea-28" target="No6HvaesxhGuNCHEIPea-64">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="-40" y="739" />
+              <mxPoint x="-40" y="2046" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="No6HvaesxhGuNCHEIPea-27" value="&lt;font style=&quot;font-size: 15px;&quot;&gt;Нет&lt;/font&gt;" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="No6HvaesxhGuNCHEIPea-26">
+          <mxGeometry x="-0.9685" y="4" relative="1" as="geometry">
+            <mxPoint x="1" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="No6HvaesxhGuNCHEIPea-28" value="k &amp;lt; z" style="rhombus;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="373.26" y="711" width="89" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="No6HvaesxhGuNCHEIPea-73" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;strokeWidth=3;" edge="1" parent="1" source="No6HvaesxhGuNCHEIPea-30" target="No6HvaesxhGuNCHEIPea-72">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="No6HvaesxhGuNCHEIPea-30" value="&lt;div&gt;float oldTemp = this-&amp;gt;matrix[i][j][k];&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;background-color: initial;&quot;&gt;float newTemp = 0.0f;&lt;/span&gt;&lt;/div&gt;&lt;div&gt;float * value_ptr;&lt;/div&gt;" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="322" y="821" width="191.5" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="No6HvaesxhGuNCHEIPea-61" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;strokeWidth=3;" edge="1" parent="1" source="No6HvaesxhGuNCHEIPea-62" target="No6HvaesxhGuNCHEIPea-28">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="810" y="1986" />
+              <mxPoint x="810" y="739" />
+              <mxPoint x="462" y="739" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="No6HvaesxhGuNCHEIPea-62" value="k++;" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="377" y="1971" width="76" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="No6HvaesxhGuNCHEIPea-63" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;strokeWidth=3;" edge="1" parent="1" source="No6HvaesxhGuNCHEIPea-64" target="No6HvaesxhGuNCHEIPea-23">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="850" y="2046" />
+              <mxPoint x="850" y="558" />
+              <mxPoint x="500" y="558" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="No6HvaesxhGuNCHEIPea-64" value="j++;" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="376.25" y="2031" width="76" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="No6HvaesxhGuNCHEIPea-65" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;strokeWidth=3;" edge="1" parent="1" source="No6HvaesxhGuNCHEIPea-66" target="No6HvaesxhGuNCHEIPea-14">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="890" y="2106" />
+              <mxPoint x="890" y="380" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="No6HvaesxhGuNCHEIPea-66" value="i++;" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="376.25" y="2091" width="76" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="No6HvaesxhGuNCHEIPea-67" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;strokeWidth=3;" edge="1" parent="1" source="No6HvaesxhGuNCHEIPea-68" target="No6HvaesxhGuNCHEIPea-9">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="630" y="2055.2121212121215" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="930" y="2166" />
+              <mxPoint x="930" y="225" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="No6HvaesxhGuNCHEIPea-68" value="count++;" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="370.75" y="2151" width="87" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="No6HvaesxhGuNCHEIPea-69" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;strokeWidth=3;" edge="1" parent="1" source="No6HvaesxhGuNCHEIPea-70" target="No6HvaesxhGuNCHEIPea-4">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="No6HvaesxhGuNCHEIPea-70" value="Подготовка по условию matrix" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="357.76" y="60" width="120" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="No6HvaesxhGuNCHEIPea-71" value="Конец" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="120" y="207.5" width="80" height="35" as="geometry" />
+        </mxCell>
+        <mxCell id="No6HvaesxhGuNCHEIPea-75" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;strokeWidth=3;" edge="1" parent="1" source="No6HvaesxhGuNCHEIPea-72" target="No6HvaesxhGuNCHEIPea-74">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="No6HvaesxhGuNCHEIPea-72" value="Выделение памяти и копирование:&lt;br&gt;&lt;div&gt;cudaMalloc(&amp;amp;value_ptr, sizeof(float));&lt;/div&gt;&lt;div&gt;&lt;div&gt;cudaMemcpy(this, obj, sizeof(make_cube), cudaMemcpyDeviceToHost);&lt;/div&gt;&lt;div&gt;&amp;nbsp; &amp;nbsp; &amp;nbsp; &amp;nbsp; &amp;nbsp; &amp;nbsp; &amp;nbsp; &amp;nbsp; cudaMemcpy(&amp;amp;test, value_ptr, sizeof(float), cudaMemcpyDeviceToHost);&amp;nbsp;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;background-color: initial;&quot;&gt;cudaFree(value_ptr);&lt;/span&gt;&lt;/div&gt;&lt;/div&gt;&lt;div&gt;cudaMemcpy(value_ptr, &amp;amp;newTemp, sizeof(float), cudaMemcpyHostToDevice);&lt;/div&gt;&lt;div&gt;thrust::device_ptr&amp;lt;float&amp;gt; ptr = thrust::device_pointer_cast&amp;lt;float&amp;gt;(this-&amp;gt;matrix.data());&lt;/div&gt;" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="141.13" y="921" width="553.25" height="110" as="geometry" />
+        </mxCell>
+        <mxCell id="No6HvaesxhGuNCHEIPea-117" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;strokeWidth=3;" edge="1" parent="1" source="No6HvaesxhGuNCHEIPea-74" target="No6HvaesxhGuNCHEIPea-76">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="No6HvaesxhGuNCHEIPea-74" value="Запуск ядра, настраивая dim для потоков и блоков:&lt;br&gt;&lt;div&gt;dim3 blocks(1,1,1);&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;background-color: initial;&quot;&gt;collect_byKernel &amp;lt;&amp;lt;&amp;lt;&lt;/span&gt;&lt;span style=&quot;background-color: initial;&quot;&gt;dim3(&amp;nbsp;&lt;/span&gt;&lt;span style=&quot;background-color: initial;&quot;&gt;((i &amp;gt; 0) ? 3 : 2),&amp;nbsp;&lt;/span&gt;&lt;span style=&quot;background-color: initial;&quot;&gt;((j &amp;gt; 0) ? 3 : 2), ((&lt;/span&gt;&lt;span style=&quot;background-color: initial;&quot;&gt;k &amp;gt; 0) ? 3 : 2),&amp;nbsp;&lt;/span&gt;&lt;span style=&quot;background-color: initial;&quot;&gt;blocks&amp;nbsp;&lt;/span&gt;&lt;span style=&quot;background-color: initial;&quot;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;background-color: initial;&quot;&gt;(obj, ptr, value_ptr, ((i&amp;gt;0)? i-1 : i), ((j&amp;gt;0)? j-1 : j), ((k&amp;gt;0)? k-1 : k) );&lt;/span&gt;&lt;/div&gt;" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="183.38" y="1071" width="468.75" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="No6HvaesxhGuNCHEIPea-143" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.25;exitY=1;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeWidth=3;" edge="1" parent="1" source="No6HvaesxhGuNCHEIPea-76" target="No6HvaesxhGuNCHEIPea-62">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="234" y="1986" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="No6HvaesxhGuNCHEIPea-76" value="collect_byKernel" style="swimlane;whiteSpace=wrap;html=1;startSize=23;" vertex="1" parent="1">
+          <mxGeometry x="49.879999999999995" y="1200" width="735.75" height="750" as="geometry" />
+        </mxCell>
+        <mxCell id="No6HvaesxhGuNCHEIPea-119" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;strokeWidth=3;" edge="1" parent="No6HvaesxhGuNCHEIPea-76" source="No6HvaesxhGuNCHEIPea-110" target="No6HvaesxhGuNCHEIPea-111">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="No6HvaesxhGuNCHEIPea-110" value="Запуск __device__&amp;nbsp;collectNeighbors(data, output, x,y,z, obj )" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="No6HvaesxhGuNCHEIPea-76">
+          <mxGeometry x="185.75" y="50" width="332.06" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="No6HvaesxhGuNCHEIPea-142" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;strokeWidth=3;" edge="1" parent="No6HvaesxhGuNCHEIPea-76" source="No6HvaesxhGuNCHEIPea-111" target="No6HvaesxhGuNCHEIPea-141">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="No6HvaesxhGuNCHEIPea-111" value="collectNeighbors" style="swimlane;whiteSpace=wrap;html=1;" vertex="1" parent="No6HvaesxhGuNCHEIPea-76">
+          <mxGeometry x="33" y="160" width="640" height="510" as="geometry" />
+        </mxCell>
+        <mxCell id="No6HvaesxhGuNCHEIPea-120" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;strokeWidth=3;" edge="1" parent="No6HvaesxhGuNCHEIPea-111" source="No6HvaesxhGuNCHEIPea-112" target="No6HvaesxhGuNCHEIPea-115">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="No6HvaesxhGuNCHEIPea-121" value="&lt;font style=&quot;font-size: 15px;&quot;&gt;Да&lt;/font&gt;" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="No6HvaesxhGuNCHEIPea-120">
+          <mxGeometry x="-0.2173" y="-2" relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="No6HvaesxhGuNCHEIPea-133" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0;exitY=0.5;exitDx=0;exitDy=0;strokeWidth=3;" edge="1" parent="No6HvaesxhGuNCHEIPea-111" source="No6HvaesxhGuNCHEIPea-112" target="No6HvaesxhGuNCHEIPea-132">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="No6HvaesxhGuNCHEIPea-137" value="&lt;font style=&quot;font-size: 15px;&quot;&gt;Нет&lt;/font&gt;" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="No6HvaesxhGuNCHEIPea-133">
+          <mxGeometry x="-0.3962" relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="No6HvaesxhGuNCHEIPea-112" value="radius &amp;lt; (float)std::sqrt(std::pow(xpos+ x1 - (float)(x / 2), 2) + std::pow(zpos + z1 - (float)(z / 2), 2))" style="rhombus;whiteSpace=wrap;html=1;" vertex="1" parent="No6HvaesxhGuNCHEIPea-111">
+          <mxGeometry x="49.07" y="250" width="541.87" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="No6HvaesxhGuNCHEIPea-139" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;strokeWidth=3;" edge="1" parent="No6HvaesxhGuNCHEIPea-111" source="No6HvaesxhGuNCHEIPea-115" target="No6HvaesxhGuNCHEIPea-138">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="No6HvaesxhGuNCHEIPea-115" value="atomicAdd(output, mat[index(xpos+x1, ypos+y1, zpos+z1)]);" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="No6HvaesxhGuNCHEIPea-111">
+          <mxGeometry x="151" y="390" width="338" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="No6HvaesxhGuNCHEIPea-123" value="&lt;div&gt;int x1 = threadIdx.x + blockIdx.x * gridDim.x;&lt;/div&gt;&lt;div&gt;int y1 =&amp;nbsp;threadIdx.y + blockIdx.y * gridDim.y&lt;span style=&quot;background-color: initial;&quot;&gt;;&lt;/span&gt;&lt;/div&gt;&lt;div&gt;int z1 = threadIdx.z + blockIdx.z * gridDim.z;&lt;/div&gt;" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="No6HvaesxhGuNCHEIPea-111">
+          <mxGeometry x="63.75" y="50" width="512.5" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="No6HvaesxhGuNCHEIPea-128" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;strokeWidth=3;" edge="1" parent="No6HvaesxhGuNCHEIPea-111" source="No6HvaesxhGuNCHEIPea-125" target="No6HvaesxhGuNCHEIPea-112">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="No6HvaesxhGuNCHEIPea-129" value="&lt;font style=&quot;font-size: 15px;&quot;&gt;Да&lt;/font&gt;" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="No6HvaesxhGuNCHEIPea-128">
+          <mxGeometry x="-0.25" y="3" relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="No6HvaesxhGuNCHEIPea-135" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;strokeWidth=3;" edge="1" parent="No6HvaesxhGuNCHEIPea-111" source="No6HvaesxhGuNCHEIPea-125" target="No6HvaesxhGuNCHEIPea-130">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="No6HvaesxhGuNCHEIPea-136" value="&lt;font style=&quot;font-size: 15px;&quot;&gt;Нет&lt;/font&gt;" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="No6HvaesxhGuNCHEIPea-135">
+          <mxGeometry x="-0.5879" y="1" relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="No6HvaesxhGuNCHEIPea-125" value="x1+xpos &amp;gt;= this-&amp;gt;x || y1+ypos &amp;gt;= y || z1+zpos &amp;gt;= z" style="rhombus;whiteSpace=wrap;html=1;" vertex="1" parent="No6HvaesxhGuNCHEIPea-111">
+          <mxGeometry x="127.5" y="130" width="385" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="No6HvaesxhGuNCHEIPea-130" value="return" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="No6HvaesxhGuNCHEIPea-111">
+          <mxGeometry x="14" y="200" width="88" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="No6HvaesxhGuNCHEIPea-132" value="return" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="No6HvaesxhGuNCHEIPea-111">
+          <mxGeometry x="24" y="400" width="88" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="No6HvaesxhGuNCHEIPea-138" value="return" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="No6HvaesxhGuNCHEIPea-111">
+          <mxGeometry x="276" y="470" width="88" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="No6HvaesxhGuNCHEIPea-141" value="return" style="whiteSpace=wrap;html=1;" vertex="1" parent="No6HvaesxhGuNCHEIPea-76">
+          <mxGeometry x="313" y="700" width="80" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="No6HvaesxhGuNCHEIPea-144" value="&lt;h1&gt;Пометка:&lt;/h1&gt;&lt;div&gt;data - ссылка класса (this), которая была копирована в gpu&lt;/div&gt;" style="text;html=1;strokeColor=none;fillColor=none;spacing=5;spacingTop=-20;whiteSpace=wrap;overflow=hidden;rounded=0;" vertex="1" parent="No6HvaesxhGuNCHEIPea-76">
+          <mxGeometry x="545.75" y="30" width="190" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="No6HvaesxhGuNCHEIPea-147" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;strokeWidth=3;" edge="1" parent="1" source="No6HvaesxhGuNCHEIPea-146" target="No6HvaesxhGuNCHEIPea-23">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="No6HvaesxhGuNCHEIPea-146" value="int j = 0;" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="372.76" y="450" width="90" height="35" as="geometry" />
+        </mxCell>
+        <mxCell id="No6HvaesxhGuNCHEIPea-151" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;strokeWidth=3;" edge="1" parent="1" source="No6HvaesxhGuNCHEIPea-148" target="No6HvaesxhGuNCHEIPea-28">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="No6HvaesxhGuNCHEIPea-148" value="int k = 0;" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="369.75" y="630" width="96" height="30" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

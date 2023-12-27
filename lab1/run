@@ -1,0 +1,2 @@
+Просто запустить в терминале:
+    g++ -std=c++11 -Wall -fopenmp main.cpp -o out.o
