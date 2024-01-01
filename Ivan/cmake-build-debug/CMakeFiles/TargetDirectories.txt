@@ -1,3 +1,0 @@
-/home/firewolf304/CLionProjects/parprog/Ivan/cmake-build-debug/CMakeFiles/Ivan.dir
-/home/firewolf304/CLionProjects/parprog/Ivan/cmake-build-debug/CMakeFiles/edit_cache.dir
-/home/firewolf304/CLionProjects/parprog/Ivan/cmake-build-debug/CMakeFiles/rebuild_cache.dir

@@ -6,7 +6,6 @@
 #include <stack>
 #include <thrust/host_vector.h>
 #include <thrust/device_vector.h>
-//#include <cmath>
 #include <math.h>
 #include <unistd.h>
 
@@ -234,6 +233,7 @@ int main() {
     clock_gettime(CLOCK_REALTIME, &start);
     cycle_gpu(text, n);
     clock_gettime(CLOCK_REALTIME, &finish);
+
     sub_timespec(start, finish, &delta);
     cout << "Execute time = " << delta.tv_sec << "," << delta.tv_nsec << " took seconds\n";
     clock_gettime(CLOCK_REALTIME, &start);
